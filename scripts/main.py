@@ -1,5 +1,5 @@
 
-from CNCstruct.structure import CNC_class as CNC
+import CNCstruct
 
 
 file_dir = './data/input/Pristine/'
