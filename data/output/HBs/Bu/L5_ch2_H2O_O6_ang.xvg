@@ -1,0 +1,47 @@
+# This file was created Wed Sep  4 12:49:45 2024
+# Created by:
+#                      :-) GROMACS - gmx hbond, 2019.3 (-:
+# 
+# Executable:   /home/aelahi4/softwares/gromacs-2019.3/GRMCS/bin/gmx
+# Data prefix:  /home/aelahi4/softwares/gromacs-2019.3/GRMCS
+# Working dir:  /projects/cme_santc/aelahi4/gromacs/CNC/opls/FF_test/20DP/Water/modified/Bu/100/Sim
+# Command line:
+#   gmx hbond -f md.trr -n H2O_O6_index.ndx -s md.tpr -dist L5_ch2_H2O_O6_dist.xvg -num L5_ch2_H2O_O6_hbnum.xvg -ang L5_ch2_H2O_O6_ang.xvg -da FALSE -e 100000
+# gmx hbond is part of G R O M A C S:
+#
+# Guyana Rwanda Oman Macau Angola Cameroon Senegal
+#
+@    title "Hydrogen Bond Distribution"
+@    xaxis  label "Hydrogen - Donor - Acceptor Angle (\SO\N)"
+@    yaxis  label ""
+@TYPE xy
+       0.5 0.00203881
+       1.5 0.00536132
+       2.5  0.0091369
+       3.5  0.0118553
+       4.5  0.0167258
+       5.5  0.0232198
+       6.5  0.0284679
+       7.5  0.0353017
+       8.5   0.040965
+       9.5   0.047006
+      10.5  0.0529714
+      11.5  0.0551612
+      12.5  0.0602205
+      13.5  0.0628256
+      14.5  0.0640716
+      15.5  0.0638828
+      16.5  0.0593899
+      17.5  0.0541418
+      18.5  0.0545949
+      19.5  0.0472703
+      20.5  0.0403232
+      21.5  0.0369629
+      22.5  0.0302046
+      23.5    0.02473
+      24.5  0.0195953
+      25.5  0.0168768
+      26.5  0.0134033
+      27.5 0.00943895
+      28.5 0.00773994
+      29.5 0.00611644

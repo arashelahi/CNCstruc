@@ -1,0 +1,79 @@
+# This file was created Wed Sep  4 12:21:29 2024
+# Created by:
+#                      :-) GROMACS - gmx angle, 2019.3 (-:
+# 
+# Executable:   /home/aelahi4/softwares/gromacs-2019.3/GRMCS/bin/gmx
+# Data prefix:  /home/aelahi4/softwares/gromacs-2019.3/GRMCS
+# Working dir:  /projects/cme_santc/aelahi4/gromacs/CNC/opls/FF_test/20DP/Water/modified/Bu/100/Sim
+# Command line:
+#   gmx angle -f md.trr -ov chain_twist.xvg -n twist_chain.ndx -type dihedral -all -e 100000
+# gmx angle is part of G R O M A C S:
+#
+# GRoups of Organic Molecules in ACtion for Science
+#
+@    title "Dihedral Distribution: chain_twists"
+@    xaxis  label "Degrees"
+@    yaxis  label ""
+@TYPE xy
+@    subtitle "average angle: 1.20703\So\N"
+       -29    0.000000
+       -28    0.000007
+       -27    0.000005
+       -26    0.000012
+       -25    0.000025
+       -24    0.000025
+       -23    0.000060
+       -22    0.000117
+       -21    0.000220
+       -20    0.000292
+       -19    0.000457
+       -18    0.000725
+       -17    0.001135
+       -16    0.001544
+       -15    0.002067
+       -14    0.003119
+       -13    0.004138
+       -12    0.005868
+       -11    0.008069
+       -10    0.010698
+        -9    0.014094
+        -8    0.018388
+        -7    0.023973
+        -6    0.029926
+        -5    0.037430
+        -4    0.044880
+        -3    0.052004
+        -2    0.059946
+        -1    0.065224
+         0    0.069360
+         1    0.070437
+         2    0.068872
+         3    0.065846
+         4    0.060973
+         5    0.054828
+         6    0.046749
+         7    0.038987
+         8    0.032002
+         9    0.025135
+        10    0.020337
+        11    0.015539
+        12    0.011978
+        13    0.009191
+        14    0.006832
+        15    0.005160
+        16    0.003644
+        17    0.002911
+        18    0.002144
+        19    0.001532
+        20    0.000970
+        21    0.000795
+        22    0.000495
+        23    0.000337
+        24    0.000190
+        25    0.000167
+        26    0.000067
+        27    0.000045
+        28    0.000017
+        29    0.000007
+        30    0.000002
+        31    0.000000

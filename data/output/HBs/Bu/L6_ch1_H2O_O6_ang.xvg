@@ -1,0 +1,47 @@
+# This file was created Wed Sep  4 12:59:49 2024
+# Created by:
+#                      :-) GROMACS - gmx hbond, 2019.3 (-:
+# 
+# Executable:   /home/aelahi4/softwares/gromacs-2019.3/GRMCS/bin/gmx
+# Data prefix:  /home/aelahi4/softwares/gromacs-2019.3/GRMCS
+# Working dir:  /projects/cme_santc/aelahi4/gromacs/CNC/opls/FF_test/20DP/Water/modified/Bu/100/Sim
+# Command line:
+#   gmx hbond -f md.trr -n H2O_O6_index.ndx -s md.tpr -dist L6_ch1_H2O_O6_dist.xvg -num L6_ch1_H2O_O6_hbnum.xvg -ang L6_ch1_H2O_O6_ang.xvg -da FALSE -e 100000
+# gmx hbond is part of G R O M A C S:
+#
+# Good gRace! Old Maple Actually Chews Slate
+#
+@    title "Hydrogen Bond Distribution"
+@    xaxis  label "Hydrogen - Donor - Acceptor Angle (\SO\N)"
+@    yaxis  label ""
+@TYPE xy
+       0.5 0.00295966
+       1.5 0.00946361
+       2.5  0.0160406
+       3.5   0.022435
+       4.5  0.0301812
+       5.5  0.0387314
+       6.5   0.045418
+       7.5  0.0525066
+       8.5  0.0564528
+       9.5  0.0625183
+      10.5  0.0650395
+      11.5  0.0680722
+      12.5  0.0684376
+      13.5  0.0687664
+      14.5  0.0638337
+      15.5  0.0579144
+      16.5  0.0529816
+      17.5  0.0453449
+      18.5  0.0370506
+      19.5  0.0314601
+      20.5  0.0266004
+      21.5  0.0195118
+      22.5   0.016406
+      23.5   0.012679
+      24.5 0.00993861
+      25.5 0.00661356
+      26.5 0.00500585
+      27.5 0.00387314
+      28.5 0.00222888
+      29.5 0.00153464

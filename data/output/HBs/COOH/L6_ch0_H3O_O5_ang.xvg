@@ -1,0 +1,47 @@
+# This file was created Wed Sep  4 12:11:11 2024
+# Created by:
+#                      :-) GROMACS - gmx hbond, 2019.3 (-:
+# 
+# Executable:   /home/aelahi4/softwares/gromacs-2019.3/GRMCS/bin/gmx
+# Data prefix:  /home/aelahi4/softwares/gromacs-2019.3/GRMCS
+# Working dir:  /projects/cme_santc/aelahi4/gromacs/CNC/opls/FF_test/20DP/Water/modified/COOH/Sim
+# Command line:
+#   gmx hbond -f md.trr -n H3O_O5_index.ndx -s md.tpr -dist L6_ch0_H3O_O5_dist.xvg -num L6_ch0_H3O_O5_hbnum.xvg -ang L6_ch0_H3O_O5_ang.xvg -da FALSE -e 100000
+# gmx hbond is part of G R O M A C S:
+#
+# Gravel Rubs Often Many Awfully Cauterized Sores
+#
+@    title "Hydrogen Bond Distribution"
+@    xaxis  label "Hydrogen - Donor - Acceptor Angle (\SO\N)"
+@    yaxis  label ""
+@TYPE xy
+       0.5 0.00543944
+       1.5  0.0167281
+       2.5  0.0277933
+       3.5  0.0379271
+       4.5   0.045043
+       5.5  0.0535375
+       6.5  0.0548415
+       7.5  0.0590887
+       8.5  0.0624418
+       9.5  0.0629261
+      10.5  0.0612496
+      11.5  0.0598338
+      12.5  0.0559219
+      13.5  0.0499981
+      14.5  0.0473157
+      15.5  0.0433665
+      16.5  0.0378153
+      17.5  0.0331582
+      18.5  0.0313699
+      19.5  0.0265266
+      20.5  0.0232853
+      21.5  0.0209381
+      22.5  0.0168027
+      23.5  0.0147908
+      24.5  0.0140457
+      25.5  0.0103573
+      26.5 0.00868075
+      27.5 0.00804739
+      28.5 0.00596103
+      29.5 0.00476882

@@ -1,0 +1,5 @@
+setup.py
+CNCstruc.egg-info/PKG-INFO
+CNCstruc.egg-info/SOURCES.txt
+CNCstruc.egg-info/dependency_links.txt
+CNCstruc.egg-info/top_level.txt

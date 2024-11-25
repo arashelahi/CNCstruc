@@ -1,0 +1,47 @@
+# This file was created Wed Sep  4 12:43:18 2024
+# Created by:
+#                      :-) GROMACS - gmx hbond, 2019.3 (-:
+# 
+# Executable:   /home/aelahi4/softwares/gromacs-2019.3/GRMCS/bin/gmx
+# Data prefix:  /home/aelahi4/softwares/gromacs-2019.3/GRMCS
+# Working dir:  /projects/cme_santc/aelahi4/gromacs/CNC/opls/FF_test/20DP/Water/modified/COOH/Sim
+# Command line:
+#   gmx hbond -f md.trr -n H2O_O6_index.ndx -s md.tpr -dist L7_ch2_H2O_O6_dist.xvg -num L7_ch2_H2O_O6_hbnum.xvg -ang L7_ch2_H2O_O6_ang.xvg -da FALSE -e 100000
+# gmx hbond is part of G R O M A C S:
+#
+# Great Red Owns Many ACres of Sand 
+#
+@    title "Hydrogen Bond Distribution"
+@    xaxis  label "Hydrogen - Donor - Acceptor Angle (\SO\N)"
+@    yaxis  label ""
+@TYPE xy
+       0.5 0.00106919
+       1.5 0.00397128
+       2.5 0.00565144
+       3.5 0.00904995
+       4.5  0.0127539
+       5.5  0.0173744
+       6.5  0.0232549
+       7.5  0.0296701
+       8.5   0.034596
+       9.5  0.0411257
+      10.5  0.0496029
+      11.5  0.0556744
+      12.5   0.059302
+      13.5  0.0639606
+      14.5  0.0656026
+      15.5  0.0686192
+      16.5  0.0625096
+      17.5  0.0607148
+      18.5  0.0561326
+      19.5  0.0537269
+      20.5  0.0486101
+      21.5  0.0381472
+      22.5   0.033145
+      23.5  0.0276463
+      24.5  0.0221475
+      25.5  0.0175653
+      26.5  0.0140522
+      27.5 0.00989003
+      28.5 0.00855354
+      29.5 0.00588056

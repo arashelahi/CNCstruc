@@ -1,0 +1,47 @@
+# This file was created Wed Sep  4 12:43:43 2024
+# Created by:
+#                      :-) GROMACS - gmx hbond, 2019.3 (-:
+# 
+# Executable:   /home/aelahi4/softwares/gromacs-2019.3/GRMCS/bin/gmx
+# Data prefix:  /home/aelahi4/softwares/gromacs-2019.3/GRMCS
+# Working dir:  /projects/cme_santc/aelahi4/gromacs/CNC/opls/FF_test/20DP/Water/modified/Bu/100/Sim
+# Command line:
+#   gmx hbond -f md.trr -n H2O_O6_index.ndx -s md.tpr -dist L5_ch1_H2O_O6_dist.xvg -num L5_ch1_H2O_O6_hbnum.xvg -ang L5_ch1_H2O_O6_ang.xvg -da FALSE -e 100000
+# gmx hbond is part of G R O M A C S:
+#
+# GROwing Monsters And Cloning Shrimps
+#
+@    title "Hydrogen Bond Distribution"
+@    xaxis  label "Hydrogen - Donor - Acceptor Angle (\SO\N)"
+@    yaxis  label ""
+@TYPE xy
+       0.5 0.00122009
+       1.5 0.00330605
+       2.5 0.00610044
+       3.5 0.00952456
+       4.5  0.0140113
+       5.5  0.0171599
+       6.5  0.0248741
+       7.5   0.028062
+       8.5  0.0345954
+       9.5  0.0430573
+      10.5  0.0487248
+      11.5   0.056006
+      12.5  0.0619883
+      13.5  0.0630904
+      14.5  0.0657667
+      15.5  0.0683249
+      16.5  0.0645072
+      17.5  0.0600205
+      18.5   0.054353
+      19.5  0.0529361
+      20.5  0.0432935
+      21.5  0.0389247
+      22.5  0.0331392
+      23.5  0.0275897
+      24.5  0.0227094
+      25.5   0.016727
+      26.5  0.0136571
+      27.5  0.0104298
+      28.5 0.00940649
+      29.5 0.00649402
