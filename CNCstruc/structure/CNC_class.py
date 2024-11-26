@@ -5,14 +5,18 @@ the hydrogen bond network, unit celll parameters, the phi and psi angles, and th
 '''
 from dataclasses import dataclass
 from fileinput import filename
-import traj_reader as trj
+# import traj_reader as trj
 import os
 import numpy as np
 import pandas as pd
 
 class CNC_analys:
     """
-        Class for analyzing the crystalline properties of cellulose nanocrystals (CNC).
+        Identification of the atoms involved in the hydrogen bond network, primary alcohol conformations, unit cell parameters, and twist angles.
+
+        Parameters:
+        ----------
+        data (DataFrame): DataFrame containing the atom numbers, atom names, residue numbers, and atom positions
 
         Attributes:
             layers (dict): Mapping of layer names to chain numbers.
@@ -40,11 +44,11 @@ class CNC_analys:
 }
     
     def __init__(self, data, domain='interior',layers=None, residue_numbers = 20): 
-        self.layers = layers if layers else self.DEFAULT_LAYERS
+        self.layers = layers if layers else self.DEFAULT_LAYERS # The layers are defined based on the spatial location of the chains.
         # self.atom_num = atom_num
-        self.residue_numbers = residue_numbers
-        self.data = data
-        self.domain = domain
+        self.residue_numbers = residue_numbers # The number of residues in each CNC chain.
+        self.data = data                       # The data containing the atom numbers, atom names, residue numbers, and atom positions.
+        self.domain = domain                    # The domain of the CNC structure (interior or exterior)
         self.confors_data = {'Phi': [], 'Psi': [], 'Chi' : [] , 'Chi_p' : []}
         self.twist_data = {'chain_twist' : []}
         self.hbs = {'(O2)H--O6': [], '(O3)H--O5': [], '(O6)H--O3' : []}
@@ -59,26 +63,18 @@ class CNC_analys:
     def _dataframe_preprocess(self):
         """ This module is used to add the chain number, adjust the residue number,
          and clip the data based on the middle residues and the interior chains. """
+
         data = self.data.copy()
-        data_residue = []
-        data_chain = []
-        resid_number = 0
-        chain_number = 1
-        for atoms in range(len(data)):
-            if data.loc[atoms]['atom_name'] == 'C1':
-                if resid_number == self.residue_numbers:
-                    resid_number = 0
-                    chain_number += 1
-                resid_number += 1
-            data_residue.append(resid_number)
-            data_chain.append(chain_number)
-        data['residue_number'] = data_residue
-        data['chain_number'] = data_chain
-        # data = data[data['residue_number'].isin(self.resid_vec)]
+        # Identify where new residues start ('C1' occurrences)
+        residue_starts = data['atom_name'] == 'C1'
+
+        # Calculate residue and chain numbers
+        data['residue_number'] = ((residue_starts.cumsum() -1) % self.residue_numbers)+1
+        
+        data['chain_number'] = ((residue_starts.cumsum() -1) // self.residue_numbers)+1
+
         return data
         
-
-
 
     def _clipping(self):
         """
