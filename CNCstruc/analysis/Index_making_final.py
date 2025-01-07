@@ -3,36 +3,103 @@ This module is used for making the index files for any arbitrary choice of atoms
 
 '''
 
-import traj_reader as trj
-import CNC_class as cnc
+# import traj_reader as trj
+# import CNC_class as cnc
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 import pathlib
+from CNCstruc.utils import traj_reader as trj
+
+def remove_file(file_path):
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+    
+def ndx_making(CNC_group, feature , ndx_file = None , output_path = ''):
+    # remove_file(ndx_file)
+    if feature in ['glycosidic', 'alcohols', 'twist']:
+        dihed_make_ndx(CNC_group , feature , output_path)
+    elif feature == 'H_bonds':
+        hb_make_ndx(CNC_group , feature , output_path)
+    elif feature == 'unit_cell':
+        for feature_type in CNC_group.descriptor[feature].keys():
+            unit_cell_make_ndx(CNC_group , feature , feature_type , output_path)
+        # self.unit_angle_make_ndx(feature)
+    else:
+        raise ValueError('Invalid feature name. Please choose from the following: glycosidic, alcohols, twist, H_bonds, or unit_cell.')
+
+def dihed_make_ndx(CNC_group , feature , output_path):
+    ''' 
+    This function creates the index file for the dihedral angles. 
+    The dihedral angles are extracted from the CNC_class object. 
+    '''
+    ndx_file = output_path + feature+'_index.ndx'
+    remove_file(ndx_file)
+    for feature_type in CNC_group.descriptor[feature].keys():
+        if feature in ['twist' , 'glycosidic']:
+            trj.ndx_writer(ndx_file,CNC_group.descriptor[feature][feature_type],feature_type)
+        elif feature == 'alcohols':
+            data_right = [x for iter_x , x in enumerate(CNC_group.descriptor['alcohols'][feature_type]) if iter_x % 8 >= 4 and iter_x % 8 < 8]
+            data_left = [x for iter_x , x in enumerate(CNC_group.descriptor['alcohols'][feature_type]) if iter_x % 8 < 4]
+            if CNC_group.ff=='Charmm':
+                reserved_data = data_left.copy()
+                data_left = data_right.copy()
+                data_right = reserved_data.copy()
+            trj.ndx_writer(ndx_file,data_right,f'{feature_type}_left')
+            trj.ndx_writer(ndx_file,data_left,f'{feature_type}_right')
+
+
+def unit_cell_make_ndx(CNC_group , feature , feature_type , output_path):
+    ndx_file = output_path + f'unit_cell_{feature_type}.ndx'
+    remove_file(ndx_file)
+    for cell_elem in CNC_group.descriptor[feature][feature_type].keys():
+        trj.ndx_writer(ndx_file,CNC_group.descriptor[feature][feature_type][cell_elem], cell_elem)
+
+
+def hb_make_ndx(CNC_group , feature , output_path):
+    for feature_type in CNC_group.descriptor[feature].keys():
+        ndx_file = output_path + f'{feature_type}_index.ndx'
+        remove_file(ndx_file)
+        block_size = len(CNC_group.ATOM_TYPES[feature][feature_type])*len(CNC_group.resid_vec)
+        if feature_type in ['O2H_O6','O3H_O5']:
+            layer_vec = CNC_group.layer_vec
+        else:
+            layer_vec = CNC_group.layer_vec[1:-1]
+        iter = 0
+        for layer in layer_vec:
+            if feature_type in ['O2H_O6','O3H_O5']:
+                chain_number_vec = CNC_group.layers[layer][1:-1]
+            else:
+                chain_number_vec = CNC_group.layers[layer][1:-2]
+            for chain_number_iter,chain_number in enumerate(chain_number_vec):
+                data = CNC_group.descriptor[feature][feature_type][iter*block_size:(iter+1)*block_size]
+                trj.ndx_writer(ndx_file,data,"%s_ch%d_%s" % (layer,chain_number_iter,feature_type)) if data else None
+                iter += 1
 
 class index_generator:
 
-    def __init__(self,filename,LAYERS):
-        self.data = trj.gro_reader(filename)
-        self.CNC_group = cnc.CNC_analys(self.data, layers=LAYERS)
+    def __init__(self,CNC_group):
+        # self.data = trj.gro_reader(filename)
+        # self.CNC_group = cnc.CNC_analys(self.data, layers=LAYERS)
+        self.CNC_group = CNC_group
         self.property_functions = {
-            'hbond' : self.CNC_group.extract_hb_atoms,
-            'tg' : self.CNC_group.confor_angles,
-            'phi' : self.CNC_group.confor_angles,
-            'unit_cell' : self.CNC_group.unit_cells,
-            # 'unit_cell_angle' : self.CNC_group.unit_angles,
-            'twist' : self.CNC_group.twist_angles,
+            'hbond' : self.CNC_group.get_hb_indices,
+            # 'tg' : self.CNC_group.confor_angles,
+            # 'phi' : self.CNC_group.confor_angles,
+            # 'unit_cell' : self.CNC_group.unit_cells,
+            # # 'unit_cell_angle' : self.CNC_group.unit_angles,
+            # 'twist' : self.CNC_group.twist_angles,
         }
 
         self.index_functions = {
             'hbond' : self.generate_hbond_indices,
-            'tg' : self.generate_tg_indices,
-            'phi' : self.generate_phi_indices,
-            'unit_cell' : self.generate_unit_cell_indices,
-            'twist' : self.generate_twist_indices,
+            # 'tg' : self.generate_tg_indices,
+            # 'phi' : self.generate_phi_indices,
+            # 'unit_cell' : self.generate_unit_cell_indices,
+            # 'twist' : self.generate_twist_indices,
         }
     def extract_property_functions(self, index_types):
-        """Prepare data selectively based on the required index types."""
+        """Prepare data selectively based on the required index feature_types."""
         executed_preparations = set()
         for index_type in index_types:
             prep_func = self.property_functions.get(index_type)
@@ -41,7 +108,7 @@ class index_generator:
                 executed_preparations.add(prep_func)
 
     # def prepare_data(self, index_types):
-    #     """Prepare data selectively based on the required index types."""
+    #     """Prepare data selectively based on the required index feature_types."""
     #     executed_preparations = set()
     #     for index_type in index_types:
     #         prep_func = self.preparation_functions.get(index_type)
@@ -50,7 +117,7 @@ class index_generator:
     #             executed_preparations.add(prep_func)
 
 
-    def generate_indices(self, index_types , file_path):
+    def generate_indices(self, index_types , file_path = ''):
         """Generate specified types of index files."""
         # self.prepare_data(index_types)
         self.extract_property_functions(index_types)
@@ -64,20 +131,20 @@ class index_generator:
 
 
     ########### INDEX MAKING FOR HBONDS ################
-    def generate_hbond_indices(self, file_path):
+    def generate_hbond_indices(self, file_path = ''):
         ''' 
         This file extracts the hydrogen bond indices for the CNC system and creates the ndx file. 
         The hydrogen bond indices are extracted from the CNC_class object. 
         Each block in the index file contains atoms corresponding to each chain within a layer.
         '''
 
-        hb_key_vec = list(self.CNC_group.hbs.keys())
+        hb_key_vec = list(self.CNC_group.ATOM_TYPES['H_bonds'].keys())
         hb_type_vec =['H2O_O6','H3O_O5' , 'H6O_O3']
 
         
-        for hb_type , hb_key in zip(hb_type_vec,hb_key_vec):
+        for hb_key in hb_key_vec:
             block_size = 3*len(self.CNC_group.resid_vec)
-            ndx_file = file_path + hb_type+'_index.ndx'
+            ndx_file = file_path + hb_key+'_index.ndx'
             if os.path.isfile(ndx_file):
                 os.remove(ndx_file)
             iter = -1
@@ -85,15 +152,15 @@ class index_generator:
                 # chain_number_vec = [self.layers[layer][0], self.layers[layer][-1]] if len(self.layers[layer]) > 1 else [self.layers[layer][0]] # for the exterior chains
                 chain_number_vec = self.CNC_group.layers[layer][1:-1] # for the interior chains
                 for chain_number_iter,chain_number in enumerate(chain_number_vec):
-                    if hb_key=='(O6)H--O3':
+                    if hb_key=='O6H_O3':
                         if layer==self.CNC_group.layer_vec[0] or self.CNC_group==self.CNC_group.layer_vec[-1]:
                             continue
                         elif chain_number_iter==len(chain_number_vec)-1:
                             continue
                     iter+=1
                     # data_hb = _extract_hb_indices(CNC_group,hb_type,hb_key, layer, chain_number_vec, chain_number_iter)
-                    data_hb = self.CNC_group.hbs[hb_key][iter*block_size:(iter+1)*block_size]
-                    trj.ndx_writer(ndx_file,data_hb,"%s_ch%d_%s" % (layer,chain_number_iter,hb_type)) if data_hb else None
+                    data_hb = self.CNC_group.descriptor['H_bonds'][hb_key][iter*block_size:(iter+1)*block_size]
+                    trj.ndx_writer(ndx_file,data_hb,"%s_ch%d_%s" % (layer,chain_number_iter,hb_key)) if data_hb else None
 
 
     ########### INDEX MAKING FOR tg conformations ################
@@ -155,15 +222,15 @@ class index_generator:
 
 
 
-# if __name__ == "__main__":
-file_path = './simulation_traj_topol/Bu/'
-filename = file_path+'solute.gro'
-Modified_LAYERS = {
-    'L1': [18], 'L2': [19, 2], 'L3': [14,24,3], 'L4':  [15,25,31,6],
-    'L5': [11,21,26,32,7], 'L6': [12,22,27,33,36,10], 'L7': [13,23,28,34,8],
-    'L8': [16,29,35,9], 'L9': [17,30,4], 'L10':  [20,5], 'L11': [1]
-}
-index_types = ['hbond','twist' , 'tg' , 'unit_cell' , 'phi']
-index_generator = index_generator(filename , Modified_LAYERS)
-index_generator.generate_indices(index_types , file_path)
+# # if __name__ == "__main__":
+# file_path = './simulation_traj_topol/Bu/'
+# filename = file_path+'solute.gro'
+# Modified_LAYERS = {
+#     'L1': [18], 'L2': [19, 2], 'L3': [14,24,3], 'L4':  [15,25,31,6],
+#     'L5': [11,21,26,32,7], 'L6': [12,22,27,33,36,10], 'L7': [13,23,28,34,8],
+#     'L8': [16,29,35,9], 'L9': [17,30,4], 'L10':  [20,5], 'L11': [1]
+# }
+# index_types = ['hbond','twist' , 'tg' , 'unit_cell' , 'phi']
+# index_generator = index_generator(filename , Modified_LAYERS)
+# index_generator.generate_indices(index_types , file_path)
 

@@ -17,8 +17,15 @@ class CNC_analys:
         Parameters:
         ----------
         data (DataFrame): DataFrame containing the atom numbers, atom names, residue numbers, and atom positions
+        domain (str): Domain of the CNC structure (interior or exterior)
+        layers (dict): Mapping of layer names to chain numbers, where L1 layer is the topmost layer and L11 is the bottommost layer.
+        residue_numbers (int): Number of residues in each CNC chain
 
         Attributes:
+        ----------
+            DEFAULT_LAYERS (dict): Default layer mapping for interior and exterior chains.
+            ATOM_TYPES (dict): The dictionary containing the atom names for different structural properties.
+            descriptor (dict): The dictionary to store the atom numbers for different structural properties.
             layers (dict): Mapping of layer names to chain numbers.
             atom_num (int): Number of atoms per chain.
             data (DataFrame): DataFrame containing CNC structure data.
@@ -36,28 +43,32 @@ class CNC_analys:
     #     'L5': [11,21,26,32,7], 'L6': [12,22,27,33,36,10], 'L7': [13,23,28,34,8],
     #     'L8': [16,29,35,9], 'L9': [17,30,4], 'L10':  [20,5], 'L11': [1]
     # }
-    CONFOR_TYPES={'Phi' : ('O5', 'C1', 'O4', 'C4') , 'Psi' : ('C1', 'O4', 'C4','C5'),
-                  'Chi' : ('O5' ,'C5' ,'C6', 'O6') , 'Chi_p' : ('C4' ,'C5' ,'C6', 'O6') 
-
-}
-    TWIST_TYPES={'chain_twist' : ('C3', 'C5','C5','C3')  
-}
     
-    def __init__(self, data, domain='interior',layers=None, residue_numbers = 20): 
+    ATOM_TYPES = { 'glycosidic' : {'Phi' : ('O5' , 'C1' ,'O4' , 'C4') , 'Psi' : ('C1' , 'O4' ,'C4' , 'C5')} ,
+                   'alcohols'   : {'Chi' : ('O5' , 'C5' ,'C6' , 'O6') , 'Chi_p' : ('C4' , 'C5' ,'C6' , 'O6')} ,
+                   'twist'      : {'twist' : ('C3' , 'C5' ,'C5' , 'C3')} ,
+                   'H_bonds'    : {'O2H_O6' : ('O2','HO2','O6') , 'O3H_O5'  : ('O5','O3','HO3')  , 'O6H_O3' : ('O6','HO6','O3')},
+                   'unit_cell'  : {'a'     : ('C1','C1')     , 'b'    : ('C1','C1')      , 'c'    : ('C1','C1'),
+                                   'alpha' : ('C1','C1','C1'), 'beta' : ('C1','C1','C1'), 'gamma' : ('C1','C1','C1')}
+                 }
+
+    
+    def __init__(self, data, domain='interior',layers = None, residue_numbers = 20 , FF = 'default'): 
+
         self.layers = layers if layers else self.DEFAULT_LAYERS # The layers are defined based on the spatial location of the chains.
-        # self.atom_num = atom_num
-        self.residue_numbers = residue_numbers # The number of residues in each CNC chain.
-        self.data = data                       # The data containing the atom numbers, atom names, residue numbers, and atom positions.
-        self.domain = domain                    # The domain of the CNC structure (interior or exterior)
-        self.confors_data = {'Phi': [], 'Psi': [], 'Chi' : [] , 'Chi_p' : []}
-        self.twist_data = {'chain_twist' : []}
-        self.hbs = {'(O2)H--O6': [], '(O3)H--O5': [], '(O6)H--O3' : []}
-        self.unit_cell_dims={'a' : [], 'b' : [], 'c' : []}
-        self.unit_cell_angles={'alpha' : [], 'beta' : [], 'gamma' : []}
+        self.residue_numbers = residue_numbers                  # The number of residues in each CNC chain.
+        self.data = data                                        # The data containing the atom numbers, atom names, residue numbers, and atom positions.
+        self.domain = domain                                    # The domain of the CNC structure (interior or exterior)
+        self.descriptor = { 'glycosidic' : {'Phi':  [] , 'Psi'   : []} ,
+                            'alcohols'   : {'Chi' : [] , 'Chi_p' : []} ,
+                            'twist'      : {'twist' : []} ,
+                            'H_bonds'    : {'O2H_O6': [], 'O3H_O5': [], 'O6H_O3' : []} ,
+                            'unit_cell'  : {'dimension' : {'a' : [], 'b' : [], 'c' : []} ,
+                                            'angle'  : {'alpha' : [], 'beta' : [], 'gamma' : []}}
+                                            }                   ## The main descriptor that stores the atom numbers for different structural properties.
         self.resid_vec = np.arange(5,17,1)
-        # self.layer_vec = ['L%d' % x for x in range(3,10)]
         self.layer_vec = list(self.layers.keys()) if self.domain == 'exterior' else list(self.layers.keys())[2:-2] ## This choice could be made when only iterior chains are needed.
-        # self.layer_vec = list(CNC_group.layers.keys())[2:-2]
+        self.ff = FF
         self.clipped_data = self._clipping()
     
     def _dataframe_preprocess(self):
@@ -78,268 +89,273 @@ class CNC_analys:
 
     def _clipping(self):
         """
-        Clips the data based on layer specifications.
+        This module is used to clip the data based on the middle residues and the interior chains.
 
         Returns:
             DataFrame: Clipped DataFrame.
         """
-        # added_chain_data = self._add_chain_num()
         
+        # Adding the chain number and residue number to the data
         refined_data = self._dataframe_preprocess()
         refined_data = refined_data[refined_data['residue_number'].isin(self.resid_vec)]
         chain_num_vec = [num for layer in self.layer_vec for num in self.layers[layer]]
         self.Clipped_Data=refined_data[refined_data['chain_number'].isin(chain_num_vec)]
+
         return self.Clipped_Data
+    
+    def get_indices(self,feature):
+        if feature in ['glycosidic', 'alcohols', 'twist']:
+            self.get_dihed_indices(feature)
+        elif feature == 'H_bonds':
+            self.get_hb_indices(feature)
+        elif feature == 'unit_cell':
+            self.unit_cell_dim(feature)
+            self.unit_cell_ang(feature)
+        else:
+            raise ValueError('Invalid feature name. Please choose from the following: glycosidic, alcohols, twist, H_bonds, or unit_cell.')
+            
 
-
-    def confor_angles(self):
+    def get_dihed_indices(self , feature = 'glycosidic'):
+        """"
+        Module to extract the atom numbers for the structural properties described by dihedral angles.
         """
-        Obtain the atom numbers for Chi, and Chi_P angles.
-        """
-
-        for ang_type, atom_names in self.CONFOR_TYPES.items():
-            data_ang=self.clipped_data[self.clipped_data['atom_name'].isin(atom_names)]
+        if self.ff == 'Charmm':
+            self.resid_vec = self.resid_vec[::-1]
+        for ang_type in self.descriptor[feature].keys():
             for layer in self.layer_vec:
-                chain_number_vec = self.layers[layer][1:-1] # for the interior chains
-                # chain_number_vec = [self.layers[layer][0], self.layers[layer][-1]] if len(self.layers[layer]) > 1 else [self.layers[layer][0]] # for the exterior chains
+                chain_number_vec = self.layers[layer][1:-1] # for the interior chains              
                 for chain_number in chain_number_vec: 
-                    resid_range = self.resid_vec[:-1] if ang_type in ['Phi' , 'Psi'] else self.resid_vec
+                    if feature == 'glycosidic': # this dihedral involves the atoms from two residues.
+                        resid_range = self.resid_vec[:-1]
+
+                    elif feature == 'alcohols': # this dihedral involves the atoms from the same residue.
+                        resid_range = self.resid_vec
+                        
+                    elif feature == 'twist': # this dihedral involves the atoms from three residues.
+                        resid_range = self.resid_vec[:-2]
+                    if self.ff == 'Charmm':
+                        resid_range = resid_range[::-1]
                     for resid in resid_range:
-                        self.confors_data[ang_type]+=self._extract_ang_atoms(data_ang, chain_number, resid, ang_type)
-
-    def twist_angles(self):
+                        self.descriptor[feature][ang_type] += self._extract_dihed_atom_nums(self.clipped_data, chain_number, resid, ang_type , feature)
+    def _extract_dihed_atom_nums(self, data , chain_number, resid, angle_type , feature):
         """
-        Obtain the atom numbers for twist angles.
-        """
-
-        for ang_type, atom_names in self.TWIST_TYPES.items():
-            data_ang=self.clipped_data[self.clipped_data['atom_name'].isin(atom_names)]
-            for layer in self.layer_vec:
-                chain_number_vec = self.layers[layer][1:-1] if self.domain == 'interior' else [self.layers[layer][0], self.layers[layer][-1]] if len(self.layers[layer]) > 1 else [self.layers[layer][0]] # for the interior chains
-
-                # chain_number_vec = self.layers[layer][1:-1] # for the interior chains
-                # # chain_number_vec = [self.layers[layer][0], self.layers[layer][-1]] if len(self.layers[layer]) > 1 else [self.layers[layer][0]] # for the exterior chains
-                for chain_number in chain_number_vec: 
-                    resid_range = self.resid_vec[:-2]
-                    for resid in resid_range:
-                        self.twist_data[ang_type]+=self._extract_twist_atoms(data_ang, chain_number, resid, ang_type)
-
-
-    def _extract_ang_atoms(self, data, chain_number, resid, angle_type):
-        """
-        Extracts atom numbers for angle calculation.
+        helper function to extract the atom numbers for the structural properties described by dihedral angles.
 
         Parameters:
             data (DataFrame): DataFrame containing angle-specific data.
             chain_number (int): Chain number.
             resid (int): Residue number.
-            angle_type (str): Type of angle ('Phi', 'Psi', 'Chi', or 'Chi_p').
-
-        Returns:
-
-        Returns:
-            list: List of atom numbers.
-        """
-        atom_names = self.CONFOR_TYPES[angle_type]
-        atoms = []
-
-        for atom_name in atom_names:
-            resid_offset = 1 if angle_type in ['Phi', 'Psi'] and atom_name in ['O4', 'C4', 'C5'] else 0 ## The Phi and Psi angles contain the atoms from two residues, while Chis do not.
-            atoms += data[(data['residue_number'] == resid + resid_offset) & 
-                        (data['chain_number'] == chain_number) & 
-                        (data['atom_name'] == atom_name)]['atom_number'].values.tolist()
-        return atoms
-
-    def _extract_twist_atoms(self, data, chain_number, resid, angle_type):
-        """
-        Extracts atom numbers for angle calculation.
-
-        Parameters:
-            data (DataFrame): DataFrame containing angle-specific data.
-            chain_number (int): Chain number.
-            resid (int): Residue number.
-            angle_type (str): Type of angle ('chain_twist').
-
-        Returns:
-
+            angle_type (str): Name of angle type, e.g., Phi.
+            feature (str): Name of the structural feature, e.g., glycosidic dihedral angle.
+            resid_offset (int): Residue offset indicating the residue number involved in the dihedral angle.
         Returns:
             list: List of atom numbers.
         """
-        atom_names = self.TWIST_TYPES[angle_type]
+        atom_names = self.ATOM_TYPES[feature][angle_type]
+
+        # if self.ff == 'Charmm':
+        #     atom_names = atom_names[::-1]
         atoms = []
 
         for atom_iter , atom_name in enumerate(atom_names):
-            curr_resid = resid if atom_iter < 2 else resid +2
-            atoms += data[(data['residue_number'] == curr_resid) & 
-                        (data['chain_number'] == chain_number) & 
-                        (data['atom_name'] == atom_name)]['atom_number'].values.tolist()
+            if feature == 'glycosidic':
+                resid_offset = 1 if atom_name in ['O4', 'C4', 'C5'] else 0
+            elif feature == 'alcohols':
+                resid_offset = 0
+            elif feature == 'twist':
+                resid_offset = 2 if atom_iter > 1 else 0
+            if self.ff == 'Charmm':
+                resid_offset = -resid_offset
+            # resid_offset = 1 if angle_type in ['Phi', 'Psi'] and atom_name in ['O4', 'C4', 'C5'] else 0 ## The Phi and Psi angles contain the atoms from two residues, while Chis do not.
+            atoms += data[(data['residue_number'] == resid + resid_offset) & 
+                          (data['chain_number']   == chain_number) & 
+                          (data['atom_name']      == atom_name)]['atom_number'].values.tolist()
         return atoms
 
-    def extract_hb_atoms(self):
+
+    def get_hb_indices(self , feature):
         """
-        Extracts the atom numbers that participate in hydrogen bonds.
+         Module to extract the atom numbers for the different types of hydrogen bonds.
 
         The method iterates over predefined hydrogen bond types and extracts    
         corresponding atom numbers from the clipped data.
         """
-        hb_type_vec=[['O2','HO2','O6'],['O3','HO3','O5'],['O6','HO6','O3']]
-        for hb_type, hb_key in zip(hb_type_vec, list(self.hbs.keys())):
-            data_hb=self.clipped_data[self.clipped_data['atom_name'].isin(hb_type)]
+
+        for hb_type in self.ATOM_TYPES[feature].keys():
             for layer in self.layer_vec:
-                # chain_number_vec = [self.layers[layer][0], self.layers[layer][-1]] if len(self.layers[layer]) > 1 else [self.layers[layer][0]] # for the exterior chains
                 chain_number_vec = self.layers[layer][1:-1] # for the interior chains
                 for chain_number_iter,chain_number in enumerate(chain_number_vec):
-                    if hb_key=='(O6)H--O3':
-                        if layer==self.layer_vec[0] or layer==self.layer_vec[-1]:
+                    if hb_type == 'O6H_O3':
+                        if layer==self.layer_vec[0] or layer==self.layer_vec[-1]: # The first and last layers do not have the pair chains for a calculation
                             continue
-                        elif chain_number_iter==len(chain_number_vec)-1:
+                        elif chain_number_iter==len(chain_number_vec)-1: # if the layer has only one interior chain, then the inter-chain hb does not form.
                             continue
-                        odd_glc_numbs = np.unique(self.clipped_data['residue_number'])[0::2]
-                        even_glc_numbs = np.unique(self.clipped_data['residue_number'])[1::2]
-                        hb_to_add=data_hb[(data_hb['chain_number'] == chain_number_vec[chain_number_iter]) & 
-                                          (data_hb['residue_number'].isin(odd_glc_numbs)) &
-                                          (data_hb['atom_name'].isin(['O6','HO6']))]['atom_number'].values.tolist()+\
-                                  data_hb[(data_hb['chain_number'] == chain_number_vec[chain_number_iter]) & 
-                                          (data_hb['residue_number'].isin(even_glc_numbs)) &
-                                          (data_hb['atom_name'].isin(['O3']))]['atom_number'].values.tolist()+ \
-                                  data_hb[(data_hb['chain_number'] == chain_number_vec[chain_number_iter+1]) & 
-                                          (data_hb['residue_number'].isin(odd_glc_numbs)) &
-                                          (data_hb['atom_name'].isin(['O3']))]['atom_number'].values.tolist()+\
-                                  data_hb[(data_hb['chain_number'] == chain_number_vec[chain_number_iter+1]) & 
-                                          (data_hb['residue_number'].isin(even_glc_numbs)) &
-                                          (data_hb['atom_name'].isin(['O6','HO6']))]['atom_number'].values.tolist()
-                                #       data_hb[(data['chain_number'] == chain_number_vec[chain_number_iter]) & 
-                                #               (data['residue_number'].isin([6,8,10,12,14])]['atom_number'].values.tolist()+
-                                #   (data['atom_name'].isin(['O6','HO6']))]['atom_number'].values.tolist()
-                                
+                    for resid in self.resid_vec:
+                        self.descriptor['H_bonds'][hb_type] += self._extract_hb_atom_nums(self.clipped_data, chain_number_vec, chain_number_iter , resid, feature, hb_type)
+    
+    def _extract_hb_atom_nums(self, data, chain_number_vec, chain_number_iter , resid, feature , hbtype):
+
+        odd_glc_numbs = np.unique(self.clipped_data['residue_number'])[0::2]
+        even_glc_numbs = np.unique(self.clipped_data['residue_number'])[1::2]
+
+        if self.ff == 'Charmm':
+            reverse_copy = odd_glc_numbs.copy()
+            odd_glc_numbs = even_glc_numbs.copy()
+            even_glc_numbs = reverse_copy
+            # even_glc_numbs = odd_glc_numbs.copy()
+            # odd_glc_numbs = np.unique(self.clipped_data['residue_number'])[1::2]
+            # odd_glc_numbs = np.unique(self.clipped_data['residue_number'])[0::2]
+
+        atom_names = self.ATOM_TYPES[feature][hbtype] 
+        atoms = []
+
+        for atom_iter , atom_name in enumerate(atom_names):
+            if hbtype == 'O6H_O3': 
+                if resid in odd_glc_numbs:
+                    if atom_name in ['O6','HO6']:
+                        chain_number = chain_number_vec[chain_number_iter]
                     else:
-                        hb_to_add=data_hb[(data_hb['chain_number']==chain_number)]['atom_number'].values.tolist()
-                    self.hbs[hb_key]+=hb_to_add
+                        chain_number = chain_number_vec[chain_number_iter+1]
+                if resid in even_glc_numbs:
+                    if atom_name == 'O3':
+                        chain_number = chain_number_vec[chain_number_iter]
+                    else:
+                        chain_number = chain_number_vec[chain_number_iter+1]
 
-    def unit_cells(self):
-        self._unit_cell_dim()
-        self._unit_cell_ang()
+            else:
+                chain_number = chain_number_vec[chain_number_iter]
+            atoms += data[(data['chain_number']   == chain_number) & 
+                          (data['residue_number']   == resid) & 
+                          (data['atom_name']      == atom_name)]['atom_number'].values.tolist()
+        return atoms
 
-    def _unit_cell_dim(self):
+
+    def unit_cell_dim(self , feature):
         """
-        Calculate the unit cells.
+       This module is used to extract the atom numbers for the unit cell dimensions.
         """
-        data_unit_dim = self.clipped_data[self.clipped_data['atom_name']=='C1']
-        for dim_type in self.unit_cell_dims.keys():
+        for dim_type in self.descriptor['unit_cell']['dimension'].keys():
             """ for the 'a' unit dimension, the first two layers are skipped. Also, the ending on the top-half (<L7) do not have the pair chains for a calculation """
-            layer_vec = self.layer_vec[2:] if dim_type == 'a' else self.layer_vec[1:-1] if dim_type == 'b' else self.layer_vec
-            for layer in layer_vec:
-                chain_vec = self.layers[layer][2:-2] if dim_type == 'a' and layer < 'L7' else self.layers[layer][1:-2] if dim_type == 'b' else self.layers[layer][1:-1]
-                for chain_number in chain_vec:
+
+            for layer_iter_number , layer in enumerate(self.layer_vec):
+                if dim_type == 'a': # the a dimension is calculated for the distance between a chain and another chain in two layers above it.
+                    if layer < 'L7':
+                        if layer not in self.layer_vec[2:]: # the a dimension is calculated from L5 to L9.
+                            continue
+                        chain_number_vec = self.layers[layer][2:-2]
+                    else: 
+                        chain_number_vec = self.layers[layer][1:-1]
+                elif dim_type == 'b':
+                    if layer not in self.layer_vec[1:-1]: # From L4 to L8
+                        continue
+                    chain_number_vec = self.layers[layer][1:-1]
+                elif dim_type == 'c':
+                    chain_number_vec = self.layers[layer][1:-1] # From L3 to L9
+
+                for chain_number_iter , chain_number in enumerate(chain_number_vec):
+
+                    if dim_type =='b' and chain_number == chain_number_vec[-1]:
+                        continue
+
                     resid_range = self.resid_vec[:-2] if dim_type == 'c' else self.resid_vec
+# 
                     for resid in resid_range:
-                        self.unit_cell_dims[dim_type]+=self._extract_unit_dim_atoms(data_unit_dim, layer, chain_number, resid, dim_type)
+                        self.descriptor['unit_cell']['dimension'][dim_type]+=self._extract_unit_dim_atoms(self.clipped_data, layer_iter_number, layer, chain_number_vec, chain_number_iter, resid, feature, dim_type)
 
-    def _extract_unit_dim_atoms(self , data, layer, chain_number, resid, dim_type):
-
-        chain_ind = self.layers[layer][1:-1].index(chain_number)
-        layer_ind = self.layer_vec.index(layer)
-
-
-        if dim_type == 'c':
-            atoms = data[(data['residue_number'].isin([resid,resid+2])) & 
-                         (data['chain_number']==chain_number)]['atom_number'].values.tolist()
-
-        if dim_type == 'b' : 
-            atoms = data[(data['residue_number']==resid) &
-                         (data['chain_number'].isin(self.layers[layer][1:-1][chain_ind:chain_ind+2]))]['atom_number'].values.tolist()
-        if dim_type == 'a' : 
-
-            top_iter = -1 if layer < 'L7' else 0 if layer == 'L7' else +1
-
-            other_chain=self.layers[self.layer_vec[layer_ind-2]][1:-1][top_iter+chain_ind]
-            atoms = data[(data['residue_number']==resid) &
-                         (data['chain_number'].isin([chain_number,other_chain]))]['atom_number'].values.tolist()
-
+    def _extract_unit_dim_atoms(self , data, layer_iter_number , layer,  chain_number_vec, chain_number_iter , resid, feature , dim_type):
+        """
+        Helper function to extract the atom numbers for the unit cell dimensions.
+        """
+        atom_names = self.ATOM_TYPES[feature][dim_type] 
+        atoms = []
+        chain_number =  chain_number_vec[chain_number_iter]
+        resid_offset = 0
+        for atom_iter , atom_name in enumerate(atom_names):
+            if atom_iter == 1:
+                if dim_type == 'c':
+                    resid_offset = 2
+                elif dim_type == 'b' : 
+                    chain_number = chain_number_vec[chain_number_iter+1]
+                elif dim_type == 'a' : 
+                    top_iter = 0 if layer <= 'L7' else +1
+                    chain_number = self.layers[self.layer_vec[layer_iter_number-2]][1:-1][top_iter+chain_number_iter]
+            atoms += data[(data['chain_number']   == chain_number) & 
+                          (data['residue_number'] == resid + resid_offset) & 
+                          (data['atom_name']      == atom_name)]['atom_number'].values.tolist()
         return atoms
 
-    def _unit_cell_ang(self):
+    def unit_cell_ang(self , feature):
         """
-        Calculate the unit cells.
+        This module is used to extract the atom numbers for the unit cell angles.
         """
-        data_unit_ang = self.clipped_data[self.clipped_data['atom_name']=='C1']
-        for ang_type in self.unit_cell_angles.keys():
+        resid_range = self.resid_vec[:-2]
+        for ang_type in self.descriptor['unit_cell']['angle'].keys():
+            if ang_type == 'gamma':
+                resid_range = self.resid_vec
             """ for the 'gamma' angle, the first two layers are skipped. Also, the ending on the top-half (<L7) do not have the pair chains for a calculation """
-            layer_vec = self.layer_vec[2:-1] if ang_type == 'gamma' else self.layer_vec[1:-1] if ang_type == 'alpha' else self.layer_vec[2:]
-            for layer in layer_vec:
-                chain_vec = self.layers[layer][2:-2] if ang_type == 'gamma' and layer < 'L7'\
-                       else self.layers[layer][2:-1] if ang_type == 'gamma' and layer >= 'L7'\
-                       else self.layers[layer][2:-2] if ang_type == 'beta'  and layer < 'L7'\
-                       else self.layers[layer][1:-1] if ang_type == 'beta'  and layer > 'L6'\
-                       else self.layers[layer][1:-2] #  if ang_type == 'gamma' and layer > 'L6' or ang_type = 'alpha'
-                for chain_number in chain_vec:
-                    resid_range = self.resid_vec if ang_type == 'gamma' else  self.resid_vec[:-2]
+            for layer_iter_number , layer in enumerate(self.layer_vec):
+
+                if ang_type == 'gamma':
+                    if layer not in self.layer_vec[2:-1]: # From L5 to L8
+                        continue
+                    if layer < 'L7':
+                        chain_number_vec = self.layers[layer][2:-2]
+                    else:
+                        chain_number_vec = self.layers[layer][2:-1]
+
+                if ang_type == 'beta':
+                    if layer not in self.layer_vec[2:]:
+                        continue
+                    if layer < 'L7':
+                        chain_number_vec = self.layers[layer][2:-2]
+                    else:
+                        chain_number_vec = self.layers[layer][1:-1]
+
+                elif ang_type == 'alpha':
+                    if layer not in self.layer_vec[1:-1]: # two chains in each layer are needed for the alpha angle to be formed.
+                        continue
+                    chain_number_vec = self.layers[layer][1:-2]
+
+                for chain_number_iter , chain_number in enumerate (chain_number_vec):
+
                     for resid in resid_range:
-                        self.unit_cell_angles[ang_type]+=self._extract_unit_angle_atoms(data_unit_ang, layer, chain_number, resid, ang_type)
+                       self.descriptor['unit_cell']['angle'][ang_type]+=self._extract_unit_angle_atoms(self.clipped_data, layer_iter_number, layer, chain_number_vec, chain_number_iter, resid, feature, ang_type)
 
 
-    def _extract_unit_angle_atoms(self,data, layer, chain_number, resid, ang_type):
+    def _extract_unit_angle_atoms(self , data, layer_iter_number , layer,  chain_number_vec, chain_number_iter , resid, feature, ang_type):
+        """
+        Helper function to extract the atom numbers for the unit cell angles.
+        """
 
+        
+        atom_names = self.ATOM_TYPES[feature][ang_type] 
+        atoms = []
+        for atom_iter , atom_name in enumerate(atom_names):
+            resid_offset = 0
+            chain_number =  chain_number_vec[chain_number_iter]
+            if atom_iter == 0 :
 
-        chain_ind = self.layers[layer][1:-1].index(chain_number)
-        layer_ind = self.layer_vec.index(layer)
+                if ang_type == 'alpha':
+                    resid_offset = 2
 
-        if ang_type == 'alpha':
-            atoms = data[(data['residue_number']==resid+2) & 
-                         (data['chain_number']==chain_number)]['atom_number'].values.tolist()+\
-                    data[(data['residue_number']==resid) & 
-                         (data['chain_number']==chain_number)]['atom_number'].values.tolist()+\
-                    data[(data['residue_number']==resid) &
-                         (data['chain_number']==self.layers[layer][1:-1][chain_ind+1])]['atom_number'].values.tolist()
+                if ang_type in ['beta' , 'gamma']:
+                    if ang_type == 'gamma':
+                        top_iter = 0 if layer < 'L7' else +1 if layer == 'L7' else +2
+                    elif ang_type == 'beta':
+                        top_iter = 0 if layer <= 'L7' else +1
+                    chain_number = self.layers[self.layer_vec[layer_iter_number-2]][1:-1][top_iter+chain_number_iter]
 
-        if ang_type == 'beta' : 
-            top_iter = -1 if layer < 'L7' else 0 if layer == 'L7' else +1
+            if atom_iter == 2:
 
-            other_chain = self.layers[self.layer_vec[layer_ind-2]][1:-1][top_iter+chain_ind]
+                if ang_type =='alpha':
+                    chain_number = self.layers[layer][1:-1][chain_number_iter+1]
 
-            atoms = data[(data['residue_number']==resid) &
-                        (data['chain_number']==other_chain)]['atom_number'].values.tolist()+\
-                    data[(data['residue_number'].isin([resid,resid+2]))&
-                        (data['chain_number']==chain_number)]['atom_number'].values.tolist()
-
-        if ang_type == 'gamma' : 
-
-            top_iter = -1 if layer < 'L7' else 0 if layer == 'L7' else 1
-            # if layer>='L7':
-            #     print('here')
-
-            other_chain=self.layers[self.layer_vec[layer_ind-2]][1:-1][top_iter+chain_ind]
-            atoms = data[(data['residue_number']==resid) &
-                        (data['chain_number'].isin([other_chain,chain_number]))]['atom_number'].values.tolist()+\
-                    data[(data['residue_number']==resid) &
-                         (data['chain_number']==self.layers[layer][1:-1][chain_ind-1])]['atom_number'].values.tolist()
-
+                if ang_type == 'beta':
+                    resid_offset =  2
+                
+                if ang_type == 'gamma':
+                    chain_number = self.layers[layer][1:-1][chain_number_iter] # this is one chain to the left of the current chain examined at atom_iter == 1
+            atoms += data[(data['chain_number']   == chain_number) & 
+                          (data['residue_number'] == resid + resid_offset) & 
+                          (data['atom_name']      == atom_name)]['atom_number'].values.tolist()
         return atoms
-
-if __name__ == "__main__":
-    file_dir = './simulation_traj_topol/'
-    filename = file_dir+'solute.gro'
-    Data = trj.gro_reader(filename)
-    domain = 'interior'
-
-    # Modif_CNC_layers = {
-    #     'L1': [18], 'L2': [19, 2], 'L3': [14,24,3], 'L4':  [15,25,31,6],
-    #     'L5': [11,21,26,32,7], 'L6': [12,22,27,33,36,10], 'L7': [13,23,28,34,8],
-    #     'L8': [16,29,35,9], 'L9': [17,30,4], 'L10':  [20,5], 'L11': [1]
-    # }
-    CNC_group = CNC_analys(Data, domain=domain)
-    # CNC_group.layer_vec = list(CNC_group.layers.keys()) # 
-    # CNC_group.layer_vec = list(CNC_group.layers.keys())[2:-2] ## This choice could be made when only iterior chains are needed. 
-    CNC_group.twist_angles()
-    # print
-
-    ndx_file='twist_chain.ndx'
-    if os.path.isfile(ndx_file):
-        os.remove(ndx_file)
-
-    for chi_key in ['chain_twist']:
-        # confor_per_side = {}
-        # confor_per_side['right'] = [right_data for iter,right_data in enumerate(CNC_group.confors_data[chi_key]) if (iter)%8 in (0,1,2,3)]
-        # confor_per_side['left']  = [left_data for iter,left_data in enumerate(CNC_group.confors_data[chi_key]) if (iter)%8 in (4,5,6,7)]
-        # for side in ['left','right']:        
-        trj.ndx_writer(ndx_file,CNC_group.twist_data[chi_key] ,chi_key+'s')
