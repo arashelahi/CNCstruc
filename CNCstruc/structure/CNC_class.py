@@ -66,8 +66,19 @@ class CNC_analys:
                             'unit_cell'  : {'dimension' : {'a' : [], 'b' : [], 'c' : []} ,
                                             'angle'  : {'alpha' : [], 'beta' : [], 'gamma' : []}}
                                             }                   ## The main descriptor that stores the atom numbers for different structural properties.
+        # self.descriptor_values = self.descriptor.copy()
         self.resid_vec = np.arange(5,17,1)
         self.layer_vec = list(self.layers.keys()) if self.domain == 'exterior' else list(self.layers.keys())[2:-2] ## This choice could be made when only iterior chains are needed.
+        self.feature_dict = { 
+                            k: { 
+                            'glycosidic' : {'Phi'   :  []               , 'Psi'  :  []} ,
+                            'alcohols'   : {'left'  :  []               ,'right' :  []} ,
+                            'twist'      : {'twist' :  []                             } ,
+                            'H_bonds'    : {'O2H_O6':  [], 'O3H_O5': [], 'O6H_O3' : []} ,
+                            } 
+                            for k in self.layer_vec
+                            }
+
         self.ff = FF
         self.clipped_data = self._clipping()
     
@@ -113,28 +124,101 @@ class CNC_analys:
             self.unit_cell_ang(feature)
         else:
             raise ValueError('Invalid feature name. Please choose from the following: glycosidic, alcohols, twist, H_bonds, or unit_cell.')
+
+    def lay_chain_resid(self, layer, feature):
+        """
+        Determines the chain_number_vec and resid_range based on the layer and feature.
+
+        Parameters:
+            layer (str): Current layer being processed.
+            feature (str): The feature type ('glycosidic', 'alcohols', 'twist', 'a', 'b', 'c', 'alpha', 'beta', 'gamma').
+
+        Returns:
+            tuple: chain_number_vec (list), resid_range (list).
+        """
+        # Initialize the variables
+        chain_number_vec = []
+        resid_range = []
+
+        # Handle unit cell dimensions and angles
+        if feature in ['a', 'b', 'c', 'alpha', 'beta', 'gamma']:
+            if feature == 'a':
+                if layer < 'L7':
+                    if layer in self.layer_vec[2:]:
+                        chain_number_vec = self.layers[layer][2:-2]
+                else:
+                    chain_number_vec = self.layers[layer][1:-1]
+                resid_range = self.resid_vec
+
+            elif feature == 'b':
+                if layer in self.layer_vec[1:-1]:
+                    chain_number_vec = self.layers[layer][1:-2]
+                resid_range = self.resid_vec
+
+            elif feature == 'c':
+                chain_number_vec = self.layers[layer][1:-1]
+                resid_range = self.resid_vec[:-2]
+
+            elif feature == 'alpha':
+                if layer in self.layer_vec[1:-1]:
+                    chain_number_vec = self.layers[layer][1:-2]
+                resid_range = self.resid_vec[:-2]
+
+            elif feature == 'beta':
+                if layer in self.layer_vec[2:]:
+                    if layer < 'L7':
+                        chain_number_vec = self.layers[layer][2:-2]
+                    else:
+                        chain_number_vec = self.layers[layer][1:-1]
+                resid_range = self.resid_vec[:-2]
+
+            elif feature == 'gamma':
+                if layer in self.layer_vec[2:-1]:
+                    if layer < 'L7':
+                        chain_number_vec = self.layers[layer][2:-2]
+                    else:
+                        chain_number_vec = self.layers[layer][2:-1]
+                resid_range = self.resid_vec
+
+        # Handle glycosidic, alcohols, and twist
+        elif feature in ['glycosidic', 'alcohols', 'twist']:
+            if self.ff == 'Charmm':
+                self.resid_vec = self.resid_vec[::-1]
+            chain_number_vec = self.layers[layer][1:-1]
+            if feature == 'glycosidic':
+                resid_range = self.resid_vec[:-1]
+            elif feature == 'alcohols':
+                resid_range = self.resid_vec
+            elif feature == 'twist':
+                resid_range = self.resid_vec[:-2]
+            # if self.ff == 'Charmm':
+            #     resid_range = resid_range[::-1]
+        
+        elif feature in ['O2H_O6', 'O3H_O5', 'O6H_O3']:
+        # Extract chain numbers for interior chains
             
+            if feature == 'O6H_O3':
+                chain_number_vec = self.layers[layer][1:-2]
+                # Skip calculation for first/last layer or if there's only one chain
+                if layer == self.layer_vec[0] or layer == self.layer_vec[-1]:
+                    chain_number_vec = []  # Skip first and last layers
+                resid_range = self.resid_vec  # Use all residues for this hydrogen bond type
+            else:
+                chain_number_vec = self.layers[layer][1:-1]
+                resid_range = self.resid_vec  # Default behavior for other hydrogen bond types
+        return chain_number_vec, resid_range
+
 
     def get_dihed_indices(self , feature = 'glycosidic'):
         """"
         Module to extract the atom numbers for the structural properties described by dihedral angles.
         """
-        if self.ff == 'Charmm':
-            self.resid_vec = self.resid_vec[::-1]
         for ang_type in self.descriptor[feature].keys():
             for layer in self.layer_vec:
-                chain_number_vec = self.layers[layer][1:-1] # for the interior chains              
+                if chain_number_vec == []:
+                    continue
+                chain_number_vec , resid_range = self.lay_chain_resid(layer, feature)
                 for chain_number in chain_number_vec: 
-                    if feature == 'glycosidic': # this dihedral involves the atoms from two residues.
-                        resid_range = self.resid_vec[:-1]
-
-                    elif feature == 'alcohols': # this dihedral involves the atoms from the same residue.
-                        resid_range = self.resid_vec
-                        
-                    elif feature == 'twist': # this dihedral involves the atoms from three residues.
-                        resid_range = self.resid_vec[:-2]
-                    if self.ff == 'Charmm':
-                        resid_range = resid_range[::-1]
                     for resid in resid_range:
                         self.descriptor[feature][ang_type] += self._extract_dihed_atom_nums(self.clipped_data, chain_number, resid, ang_type , feature)
     def _extract_dihed_atom_nums(self, data , chain_number, resid, angle_type , feature):
@@ -183,17 +267,14 @@ class CNC_analys:
 
         for hb_type in self.ATOM_TYPES[feature].keys():
             for layer in self.layer_vec:
-                chain_number_vec = self.layers[layer][1:-1] # for the interior chains
+                chain_number_vec , resid_range = self.lay_chain_resid(layer, hb_type)
+                if chain_number_vec == []:
+                    continue
                 for chain_number_iter,chain_number in enumerate(chain_number_vec):
-                    if hb_type == 'O6H_O3':
-                        if layer==self.layer_vec[0] or layer==self.layer_vec[-1]: # The first and last layers do not have the pair chains for a calculation
-                            continue
-                        elif chain_number_iter==len(chain_number_vec)-1: # if the layer has only one interior chain, then the inter-chain hb does not form.
-                            continue
                     for resid in self.resid_vec:
-                        self.descriptor['H_bonds'][hb_type] += self._extract_hb_atom_nums(self.clipped_data, chain_number_vec, chain_number_iter , resid, feature, hb_type)
+                        self.descriptor['H_bonds'][hb_type] += self._extract_hb_atom_nums(self.clipped_data, layer , chain_number_vec, chain_number_iter , resid, feature, hb_type)
     
-    def _extract_hb_atom_nums(self, data, chain_number_vec, chain_number_iter , resid, feature , hbtype):
+    def _extract_hb_atom_nums(self, data, layer, chain_number_vec, chain_number_iter , resid, feature , hbtype):
 
         odd_glc_numbs = np.unique(self.clipped_data['residue_number'])[0::2]
         even_glc_numbs = np.unique(self.clipped_data['residue_number'])[1::2]
@@ -215,12 +296,14 @@ class CNC_analys:
                     if atom_name in ['O6','HO6']:
                         chain_number = chain_number_vec[chain_number_iter]
                     else:
-                        chain_number = chain_number_vec[chain_number_iter+1]
+                        # chain_number = chain_number_vec[chain_number_iter+1]
+                        chain_number = self.layers[layer][1:][chain_number_iter+1]
                 if resid in even_glc_numbs:
                     if atom_name == 'O3':
                         chain_number = chain_number_vec[chain_number_iter]
                     else:
-                        chain_number = chain_number_vec[chain_number_iter+1]
+                        # chain_number = chain_number_vec[chain_number_iter+1]
+                        chain_number = self.layers[layer][1:][chain_number_iter+1]
 
             else:
                 chain_number = chain_number_vec[chain_number_iter]
@@ -238,27 +321,11 @@ class CNC_analys:
             """ for the 'a' unit dimension, the first two layers are skipped. Also, the ending on the top-half (<L7) do not have the pair chains for a calculation """
 
             for layer_iter_number , layer in enumerate(self.layer_vec):
-                if dim_type == 'a': # the a dimension is calculated for the distance between a chain and another chain in two layers above it.
-                    if layer < 'L7':
-                        if layer not in self.layer_vec[2:]: # the a dimension is calculated from L5 to L9.
-                            continue
-                        chain_number_vec = self.layers[layer][2:-2]
-                    else: 
-                        chain_number_vec = self.layers[layer][1:-1]
-                elif dim_type == 'b':
-                    if layer not in self.layer_vec[1:-1]: # From L4 to L8
-                        continue
-                    chain_number_vec = self.layers[layer][1:-1]
-                elif dim_type == 'c':
-                    chain_number_vec = self.layers[layer][1:-1] # From L3 to L9
-
+                chain_number_vec , resid_range = self.lay_chain_resid(layer, dim_type)
+                if chain_number_vec == []:
+                    continue   
                 for chain_number_iter , chain_number in enumerate(chain_number_vec):
 
-                    if dim_type =='b' and chain_number == chain_number_vec[-1]:
-                        continue
-
-                    resid_range = self.resid_vec[:-2] if dim_type == 'c' else self.resid_vec
-# 
                     for resid in resid_range:
                         self.descriptor['unit_cell']['dimension'][dim_type]+=self._extract_unit_dim_atoms(self.clipped_data, layer_iter_number, layer, chain_number_vec, chain_number_iter, resid, feature, dim_type)
 
@@ -275,7 +342,7 @@ class CNC_analys:
                 if dim_type == 'c':
                     resid_offset = 2
                 elif dim_type == 'b' : 
-                    chain_number = chain_number_vec[chain_number_iter+1]
+                    chain_number = self.layers[layer][1:-1][chain_number_iter+1]
                 elif dim_type == 'a' : 
                     top_iter = 0 if layer <= 'L7' else +1
                     chain_number = self.layers[self.layer_vec[layer_iter_number-2]][1:-1][top_iter+chain_number_iter]
@@ -290,32 +357,13 @@ class CNC_analys:
         """
         resid_range = self.resid_vec[:-2]
         for ang_type in self.descriptor['unit_cell']['angle'].keys():
-            if ang_type == 'gamma':
-                resid_range = self.resid_vec
+            # if ang_type == 'gamma':
+            #     resid_range = self.resid_vec
             """ for the 'gamma' angle, the first two layers are skipped. Also, the ending on the top-half (<L7) do not have the pair chains for a calculation """
             for layer_iter_number , layer in enumerate(self.layer_vec):
-
-                if ang_type == 'gamma':
-                    if layer not in self.layer_vec[2:-1]: # From L5 to L8
-                        continue
-                    if layer < 'L7':
-                        chain_number_vec = self.layers[layer][2:-2]
-                    else:
-                        chain_number_vec = self.layers[layer][2:-1]
-
-                if ang_type == 'beta':
-                    if layer not in self.layer_vec[2:]:
-                        continue
-                    if layer < 'L7':
-                        chain_number_vec = self.layers[layer][2:-2]
-                    else:
-                        chain_number_vec = self.layers[layer][1:-1]
-
-                elif ang_type == 'alpha':
-                    if layer not in self.layer_vec[1:-1]: # two chains in each layer are needed for the alpha angle to be formed.
-                        continue
-                    chain_number_vec = self.layers[layer][1:-2]
-
+                chain_number_vec , resid_range = self.lay_chain_resid(layer, ang_type)
+                if chain_number_vec == []:
+                    continue   
                 for chain_number_iter , chain_number in enumerate (chain_number_vec):
 
                     for resid in resid_range:
