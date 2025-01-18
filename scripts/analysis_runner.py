@@ -7,16 +7,18 @@ import numpy as np
 # CNC_form = 'Pristine'
 # gro_file = f'./data/input/{CNC_form}/solute.gro'
 
-def plot_xvg (x , y):
+def plot_xvg (x , y , hb_type = 'O3H_O5'):
     font_size = 12
-    plt.plot(x,y)
-    
+    plt.plot(x,y,label = hb_type)
+    # plt.ylim([0,100])
     plt.xlabel('Time (ps)' , fontsize = font_size)
     plt.ylabel('Number of H-bonds', fontsize = font_size)
+    plt.legend()
+    # plt.show()
 
 
 # Inputs 
-FF_directory = '/Users/arashelahi/Research/Papers/CNC_model/Review/GLYCAM-06/'
+FF_directory = '/Users/arashelahi/Research/Papers/CNC_model/Review/OPLS_old/'
 gro_file = FF_directory + 'solute.gro'
 Data = trj.gro_reader(gro_file)
 CNC_group = CNC.CNC_analys(Data)
@@ -24,9 +26,16 @@ CNC_group = CNC.CNC_analys(Data)
 # List of features : ['glycosidic', 'alcohols', 'twist', 'O2H_O6','O3H_O5','O6H_O3' , 'unit_cell']
 for feature in ['twist']:
     cnc_analysis_utils.feature_analysis (CNC_group ,feature, FF_directory)
-    # all_values = [value for layer in CNC_group.layer_vec for value in CNC_group.feature_dict[layer]['H_bonds'][feature]]
-    # print (f"Average number of H-bonds for {feature} : {np.average(all_values):6.3f} ± {np.std(all_values):6.3f}")
+#     all_values = [value for layer in CNC_group.layer_vec for value in CNC_group.feature_dict[layer]['H_bonds'][feature]]
+#     average_values = np.mean(np.array(all_values),axis = 0)
+#     time_series = np.arange(0,40 * np.shape(all_values)[1] , 40)
+#     plot_xvg(time_series , average_values , feature)
+#     # for chain in range(len(all_values)):
+        
+#     #     plot_xvg(time_series , all_values[chain])
 
+#     # print (f"Average number of H-bonds for {feature} : {np.average( np.array(all_values)[:,5000:]):6.3f} ± {np.std( np.array(all_values)[:,5000:]):6.3f}")
+# plt.show()
 # ############# For tg conformations:
 # feature = 'alcohols'
 # left_tg_values = np.array([value for layer in CNC_group.layer_vec for value in CNC_group.feature_dict[layer][feature]['left']]) == 'tg'
@@ -51,14 +60,22 @@ for feature in ['twist']:
 ############# For twist calculation:
 feature = 'twist'
 twist_values = np.array([value for layer in CNC_group.layer_vec for value in CNC_group.feature_dict[layer][feature]['twist']])
+average_values = np.mean(twist_values,axis = 0)
+time_series = np.arange(0,40 * len(average_values) , 40)
+plot_xvg(time_series , average_values , feature)
 print("twist statistics : %6.3f ± %6.3f" % (np.average(twist_values) , np.std(twist_values)))
 
 ############# For unit cell calculation:
 # feature = 'unit_cell'
-# for unit_cell_keys in ['dimension','angle']: 
-#     for unit_cell_prop in CNC_group.feature_dict[feature][unit_cell_keys].keys():
+# for unit_cell_keys in ['dimension']: 
+#     # for unit_cell_prop in CNC_group.feature_dict[feature][unit_cell_keys].keys():
+#     for unit_cell_prop in ['c']:
 #         unit_dim_vals = CNC_group.feature_dict[feature][unit_cell_keys][unit_cell_prop]
-#         print(f'The average value of {unit_cell_prop} is {np.average(unit_dim_vals):6.3f} ± {np.std(unit_dim_vals):6.3f}')
+#         time_series = np.arange(0,40 * len(unit_dim_vals) , 40)
+#         plot_xvg(time_series , unit_dim_vals , unit_cell_prop)
+plt.show()
+
+        # print(f'The average value of {unit_cell_prop} is {np.average(unit_dim_vals):6.3f} ± {np.std(unit_dim_vals):6.3f}')
 # print(CNC_group.feature_dict['unit_cell'])
 
 # print("right statistics  : %6.3f " % (np.average(right_tg_values) * 100 ))

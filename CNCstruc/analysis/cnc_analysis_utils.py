@@ -99,7 +99,7 @@ def _read_hbs(hb_filename,max_hbnum):
     indice=[1,2]
     _,hb_data=trj.xvg_reader(hb_filename,indice)
     return (np.array(hb_data)/max_hbnum*100).tolist()
-def hb_analysis (CNCclass , hb_type  , HB_dir, max_hbnum=12 , domain='interior' , file_ext = ''):
+def hb_analysis (CNCclass , hb_type  , HB_dir, max_hbnum = 11 , domain='interior' , file_ext = ''):
     """
     Analyzes the hb conformation from xvg files.
 
@@ -111,7 +111,8 @@ def hb_analysis (CNCclass , hb_type  , HB_dir, max_hbnum=12 , domain='interior' 
     Returns:
         dict: the vector of hb occupancy for each chain
     """
-   
+    if hb_type == 'O6H_O3':
+        max_hbnum=12 
     # hb_info = {}
     for layer in CNCclass.layer_vec:
         
