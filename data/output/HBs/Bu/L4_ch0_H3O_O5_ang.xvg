@@ -1,0 +1,47 @@
+# This file was created Wed Sep  4 12:29:37 2024
+# Created by:
+#                      :-) GROMACS - gmx hbond, 2019.3 (-:
+# 
+# Executable:   /home/aelahi4/softwares/gromacs-2019.3/GRMCS/bin/gmx
+# Data prefix:  /home/aelahi4/softwares/gromacs-2019.3/GRMCS
+# Working dir:  /projects/cme_santc/aelahi4/gromacs/CNC/opls/FF_test/20DP/Water/modified/Bu/100/Sim
+# Command line:
+#   gmx hbond -f md.trr -n H3O_O5_index.ndx -s md.tpr -dist L4_ch0_H3O_O5_dist.xvg -num L4_ch0_H3O_O5_hbnum.xvg -ang L4_ch0_H3O_O5_ang.xvg -da FALSE -e 100000
+# gmx hbond is part of G R O M A C S:
+#
+# God Rules Over Mankind, Animals, Cosmos and Such
+#
+@    title "Hydrogen Bond Distribution"
+@    xaxis  label "Hydrogen - Donor - Acceptor Angle (\SO\N)"
+@    yaxis  label ""
+@TYPE xy
+       0.5 0.00580055
+       1.5  0.0159515
+       2.5  0.0263628
+       3.5  0.0350264
+       4.5  0.0435413
+       5.5  0.0525396
+       6.5  0.0564066
+       7.5  0.0573734
+       8.5  0.0622815
+       9.5  0.0618725
+      10.5  0.0598275
+      11.5   0.060943
+      12.5  0.0558861
+      13.5    0.05161
+      14.5  0.0490072
+      15.5   0.042872
+      16.5  0.0391909
+      17.5  0.0347289
+      18.5  0.0326839
+      19.5   0.028036
+      20.5  0.0232394
+      21.5  0.0221239
+      22.5  0.0163605
+      23.5   0.014018
+      24.5   0.012605
+      25.5  0.0111177
+      26.5 0.00840336
+      27.5  0.0074366
+      28.5  0.0072135
+      29.5 0.00554027

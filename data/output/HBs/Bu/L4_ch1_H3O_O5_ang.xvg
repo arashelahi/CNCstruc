@@ -1,0 +1,47 @@
+# This file was created Wed Sep  4 12:35:40 2024
+# Created by:
+#                      :-) GROMACS - gmx hbond, 2019.3 (-:
+# 
+# Executable:   /home/aelahi4/softwares/gromacs-2019.3/GRMCS/bin/gmx
+# Data prefix:  /home/aelahi4/softwares/gromacs-2019.3/GRMCS
+# Working dir:  /projects/cme_santc/aelahi4/gromacs/CNC/opls/FF_test/20DP/Water/modified/Bu/100/Sim
+# Command line:
+#   gmx hbond -f md.trr -n H3O_O5_index.ndx -s md.tpr -dist L4_ch1_H3O_O5_dist.xvg -num L4_ch1_H3O_O5_hbnum.xvg -ang L4_ch1_H3O_O5_ang.xvg -da FALSE -e 100000
+# gmx hbond is part of G R O M A C S:
+#
+# Great Red Oystrich Makes All Chemists Sane
+#
+@    title "Hydrogen Bond Distribution"
+@    xaxis  label "Hydrogen - Donor - Acceptor Angle (\SO\N)"
+@    yaxis  label ""
+@TYPE xy
+       0.5 0.00636966
+       1.5  0.0166878
+       2.5  0.0294644
+       3.5   0.037026
+       4.5  0.0464501
+       5.5  0.0530805
+       6.5  0.0584072
+       7.5  0.0602324
+       8.5  0.0606422
+       9.5  0.0605304
+      10.5  0.0613127
+      11.5  0.0576622
+      12.5   0.054198
+      13.5  0.0487223
+      14.5  0.0471951
+      15.5  0.0418684
+      16.5  0.0382925
+      17.5    0.03494
+      18.5  0.0329658
+      19.5  0.0253297
+      20.5  0.0230574
+      21.5   0.021046
+      22.5  0.0175818
+      23.5  0.0145646
+      24.5  0.0118453
+      25.5  0.0113611
+      26.5  0.0103554
+      27.5 0.00778515
+      28.5 0.00633241
+      29.5 0.00469344

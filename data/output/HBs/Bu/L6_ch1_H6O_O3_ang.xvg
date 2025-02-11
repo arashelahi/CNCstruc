@@ -1,0 +1,47 @@
+# This file was created Wed Sep  4 13:03:50 2024
+# Created by:
+#                      :-) GROMACS - gmx hbond, 2019.3 (-:
+# 
+# Executable:   /home/aelahi4/softwares/gromacs-2019.3/GRMCS/bin/gmx
+# Data prefix:  /home/aelahi4/softwares/gromacs-2019.3/GRMCS
+# Working dir:  /projects/cme_santc/aelahi4/gromacs/CNC/opls/FF_test/20DP/Water/modified/Bu/100/Sim
+# Command line:
+#   gmx hbond -f md.trr -n H6O_O3_index.ndx -s md.tpr -dist L6_ch1_H6O_O3_dist.xvg -num L6_ch1_H6O_O3_hbnum.xvg -ang L6_ch1_H6O_O3_ang.xvg -da FALSE -e 100000
+# gmx hbond is part of G R O M A C S:
+#
+# Gyas ROwers Mature At Cryogenic Speed
+#
+@    title "Hydrogen Bond Distribution"
+@    xaxis  label "Hydrogen - Donor - Acceptor Angle (\SO\N)"
+@    yaxis  label ""
+@TYPE xy
+       0.5 0.000222091
+       1.5 0.000629257
+       2.5  0.0012215
+       3.5  0.0019618
+       4.5 0.00333136
+       5.5 0.00533017
+       6.5 0.00647764
+       7.5  0.0111415
+       8.5  0.0149541
+       9.5  0.0201732
+      10.5  0.0251333
+      11.5  0.0272431
+      12.5  0.0363488
+      13.5  0.0434927
+      14.5  0.0492671
+      15.5  0.0528946
+      16.5  0.0568922
+      17.5  0.0608528
+      18.5  0.0659239
+      19.5  0.0625185
+      20.5  0.0622594
+      21.5   0.058928
+      22.5  0.0589651
+      23.5  0.0516731
+      24.5  0.0499704
+      25.5  0.0428635
+      26.5   0.039273
+      27.5  0.0344981
+      28.5  0.0305745
+      29.5  0.0249852

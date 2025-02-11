@@ -1,0 +1,47 @@
+# This file was created Wed Sep  4 13:23:56 2024
+# Created by:
+#                      :-) GROMACS - gmx hbond, 2019.3 (-:
+# 
+# Executable:   /home/aelahi4/softwares/gromacs-2019.3/GRMCS/bin/gmx
+# Data prefix:  /home/aelahi4/softwares/gromacs-2019.3/GRMCS
+# Working dir:  /projects/cme_santc/aelahi4/gromacs/CNC/opls/FF_test/20DP/Water/modified/Bu/100/Sim
+# Command line:
+#   gmx hbond -f md.trr -n H3O_O5_index.ndx -s md.tpr -dist L7_ch1_H3O_O5_dist.xvg -num L7_ch1_H3O_O5_hbnum.xvg -ang L7_ch1_H3O_O5_ang.xvg -da FALSE -e 100000
+# gmx hbond is part of G R O M A C S:
+#
+# GROningen Mixture of Alchemy and Childrens' Stories
+#
+@    title "Hydrogen Bond Distribution"
+@    xaxis  label "Hydrogen - Donor - Acceptor Angle (\SO\N)"
+@    yaxis  label ""
+@TYPE xy
+       0.5  0.0062168
+       1.5    0.01928
+       2.5  0.0310447
+       3.5  0.0431635
+       4.5  0.0497738
+       5.5  0.0587448
+       6.5  0.0608302
+       7.5  0.0673618
+       8.5  0.0670077
+       9.5  0.0703128
+      10.5  0.0643714
+      11.5  0.0635058
+      12.5  0.0578399
+      13.5  0.0530002
+      14.5  0.0465867
+      15.5  0.0402125
+      16.5  0.0331694
+      17.5   0.030179
+      18.5  0.0252607
+      19.5  0.0232933
+      20.5  0.0185324
+      21.5  0.0140862
+      22.5  0.0121582
+      23.5  0.0104269
+      24.5 0.00877435
+      25.5   0.006807
+      26.5 0.00578399
+      27.5 0.00483966
+      28.5 0.00460358
+      29.5 0.00283297

@@ -1,0 +1,47 @@
+# This file was created Wed Sep  4 12:23:49 2024
+# Created by:
+#                      :-) GROMACS - gmx hbond, 2019.3 (-:
+# 
+# Executable:   /home/aelahi4/softwares/gromacs-2019.3/GRMCS/bin/gmx
+# Data prefix:  /home/aelahi4/softwares/gromacs-2019.3/GRMCS
+# Working dir:  /projects/cme_santc/aelahi4/gromacs/CNC/opls/FF_test/20DP/Water/modified/Et/100/Sim
+# Command line:
+#   gmx hbond -f md.trr -n H6O_O3_index.ndx -s md.tpr -dist L6_ch2_H6O_O3_dist.xvg -num L6_ch2_H6O_O3_hbnum.xvg -ang L6_ch2_H6O_O3_ang.xvg -da FALSE -e 100000
+# gmx hbond is part of G R O M A C S:
+#
+# Glycine aRginine prOline Methionine Alanine Cystine Serine
+#
+@    title "Hydrogen Bond Distribution"
+@    xaxis  label "Hydrogen - Donor - Acceptor Angle (\SO\N)"
+@    yaxis  label ""
+@TYPE xy
+       0.5 0.000628592
+       1.5 0.00175108
+       2.5 0.00363685
+       3.5 0.00502874
+       4.5 0.00669001
+       5.5  0.0101473
+       6.5  0.0135596
+       7.5  0.0185435
+       8.5  0.0206986
+       9.5  0.0269397
+      10.5  0.0344379
+      11.5  0.0371767
+      12.5  0.0421606
+      13.5  0.0447198
+      14.5  0.0493445
+      15.5  0.0540589
+      16.5  0.0578305
+      17.5  0.0605244
+      18.5  0.0558998
+      19.5  0.0584591
+      20.5  0.0570223
+      21.5  0.0534752
+      22.5   0.052667
+      23.5  0.0474138
+      24.5  0.0405891
+      25.5  0.0369971
+      26.5  0.0327317
+      27.5  0.0291397
+      28.5  0.0261764
+      29.5  0.0215517

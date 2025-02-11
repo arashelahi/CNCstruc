@@ -1,0 +1,87 @@
+# This file was created Wed Sep  4 12:31:38 2024
+# Created by:
+#                      :-) GROMACS - gmx hbond, 2019.3 (-:
+# 
+# Executable:   /home/aelahi4/softwares/gromacs-2019.3/GRMCS/bin/gmx
+# Data prefix:  /home/aelahi4/softwares/gromacs-2019.3/GRMCS
+# Working dir:  /projects/cme_santc/aelahi4/gromacs/CNC/opls/FF_test/20DP/Water/modified/Bu/100/Sim
+# Command line:
+#   gmx hbond -f md.trr -n H6O_O3_index.ndx -s md.tpr -dist L4_ch0_H6O_O3_dist.xvg -num L4_ch0_H6O_O3_hbnum.xvg -ang L4_ch0_H6O_O3_ang.xvg -da FALSE -e 100000
+# gmx hbond is part of G R O M A C S:
+#
+# God Rules Over Mankind, Animals, Cosmos and Such
+#
+@    title "Hydrogen Bond Distribution"
+@    xaxis  label "Hydrogen - Acceptor Distance (nm)"
+@    yaxis  label ""
+@TYPE xy
+    0.0025          0
+    0.0075          0
+    0.0125          0
+    0.0175          0
+    0.0225          0
+    0.0275          0
+    0.0325          0
+    0.0375          0
+    0.0425          0
+    0.0475          0
+    0.0525          0
+    0.0575          0
+    0.0625          0
+    0.0675          0
+    0.0725          0
+    0.0775          0
+    0.0825          0
+    0.0875          0
+    0.0925          0
+    0.0975          0
+    0.1025          0
+    0.1075          0
+    0.1125          0
+    0.1175          0
+    0.1225          0
+    0.1275          0
+    0.1325          0
+    0.1375          0
+    0.1425          0
+    0.1475          0
+    0.1525          0
+    0.1575   0.097296
+    0.1625   0.429724
+    0.1675    2.19727
+    0.1725    6.04857
+    0.1775    12.5998
+    0.1825    21.0565
+    0.1875    27.7618
+    0.1925    30.7536
+    0.1975     30.032
+    0.2025    25.2564
+    0.2075    18.0646
+    0.2125    11.9431
+    0.2175    6.73775
+    0.2225    3.68914
+    0.2275    1.77565
+    0.2325    0.93242
+    0.2375    0.36486
+    0.2425   0.154052
+    0.2475   0.024324
+    0.2525   0.032432
+    0.2575   0.016216
+    0.2625          0
+    0.2675          0
+    0.2725          0
+    0.2775          0
+    0.2825   0.008108
+    0.2875   0.016216
+    0.2925   0.008108
+    0.2975          0
+    0.3025          0
+    0.3075          0
+    0.3125          0
+    0.3175          0
+    0.3225          0
+    0.3275          0
+    0.3325          0
+    0.3375          0
+    0.3425          0
+    0.3475          0

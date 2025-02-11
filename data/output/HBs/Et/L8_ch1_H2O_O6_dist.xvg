@@ -1,0 +1,87 @@
+# This file was created Wed Sep  4 12:51:58 2024
+# Created by:
+#                      :-) GROMACS - gmx hbond, 2019.3 (-:
+# 
+# Executable:   /home/aelahi4/softwares/gromacs-2019.3/GRMCS/bin/gmx
+# Data prefix:  /home/aelahi4/softwares/gromacs-2019.3/GRMCS
+# Working dir:  /projects/cme_santc/aelahi4/gromacs/CNC/opls/FF_test/20DP/Water/modified/Et/100/Sim
+# Command line:
+#   gmx hbond -f md.trr -n H2O_O6_index.ndx -s md.tpr -dist L8_ch1_H2O_O6_dist.xvg -num L8_ch1_H2O_O6_hbnum.xvg -ang L8_ch1_H2O_O6_ang.xvg -da FALSE -e 100000
+# gmx hbond is part of G R O M A C S:
+#
+# GROup of MAchos and Cynical Suckers
+#
+@    title "Hydrogen Bond Distribution"
+@    xaxis  label "Hydrogen - Acceptor Distance (nm)"
+@    yaxis  label ""
+@TYPE xy
+    0.0025          0
+    0.0075          0
+    0.0125          0
+    0.0175          0
+    0.0225          0
+    0.0275          0
+    0.0325          0
+    0.0375          0
+    0.0425          0
+    0.0475          0
+    0.0525          0
+    0.0575          0
+    0.0625          0
+    0.0675          0
+    0.0725          0
+    0.0775          0
+    0.0825          0
+    0.0875          0
+    0.0925          0
+    0.0975          0
+    0.1025          0
+    0.1075          0
+    0.1125          0
+    0.1175          0
+    0.1225          0
+    0.1275          0
+    0.1325          0
+    0.1375          0
+    0.1425          0
+    0.1475          0
+    0.1525          0
+    0.1575 0.00814564
+    0.1625   0.114039
+    0.1675   0.586486
+    0.1725    2.13416
+    0.1775    5.50646
+    0.1825    10.8744
+    0.1875    17.3421
+    0.1925    22.7915
+    0.1975    25.2596
+    0.2025    25.2271
+    0.2075    22.9544
+    0.2125    19.0282
+    0.2175    14.9391
+    0.2225    11.1351
+    0.2275    7.86869
+    0.2325     5.0503
+    0.2375     3.4619
+    0.2425     2.2482
+    0.2475    1.43363
+    0.2525   0.733108
+    0.2575   0.431719
+    0.2625   0.325826
+    0.2675   0.195495
+    0.2725   0.154767
+    0.2775  0.0570195
+    0.2825  0.0488739
+    0.2875 0.00814564
+    0.2925          0
+    0.2975          0
+    0.3025 0.00814564
+    0.3075          0
+    0.3125          0
+    0.3175          0
+    0.3225 0.00814564
+    0.3275          0
+    0.3325          0
+    0.3375  0.0244369
+    0.3425 0.00814564
+    0.3475  0.0325826
