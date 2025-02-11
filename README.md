@@ -14,7 +14,7 @@ The current version of CNCstruc software is only compatible with GROMACS inputs 
 </div>  
   <br>
   <br>
-2. Given the index files, and GROMACS output files, this package is used for analysis of the hydrogen bond occupancy, population of _tg_ conformations, etc.
+2. Given the index files, and GROMACS output files, this package is used for analysis of the hydrogen bond occupancy, population of <i>tg</i> conformations, etc.
 
 <div align="center">
 <img width="500" alt="Fig2" src="https://github.com/user-attachments/assets/cc14625b-5a0b-442d-a329-d326033a05ed">
