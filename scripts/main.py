@@ -1,7 +1,7 @@
 from CNCstruc.structure import CNC_class as CNC
 # from CNCstruc.structure import CNC_class as CNC
 from CNCstruc.utils import traj_reader as trj
-from CNCstruc.analysis import Index_making_final as indx_gen
+from CNCstruc.analysis import Indexing.py as indx_gen
 import os 
 
 CNC_form = 'Pristine'

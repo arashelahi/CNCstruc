@@ -26,7 +26,6 @@ class CNC_analys:
             DEFAULT_LAYERS (dict): Default layer mapping for interior and exterior chains.
             ATOM_TYPES (dict): The dictionary containing the atom names for different structural properties.
             descriptor (dict): The dictionary to store the atom numbers for different structural properties.
-            layers (dict): Mapping of layer names to chain numbers.
             atom_num (int): Number of atoms per chain.
             data (DataFrame): DataFrame containing CNC structure data.
             clipped_data (DataFrame): Data clipped based on specific criteria.
@@ -38,11 +37,6 @@ class CNC_analys:
         'L5': [1, 6, 15, 25, 32], 'L6': [2, 7, 16, 26, 33, 36], 'L7': [3, 8, 17, 27, 34],
         'L8': [9, 18, 28, 35], 'L9': [10, 19, 29], 'L10': [20, 30], 'L11': [21]
     }
-    # {
-    #     'L1': [18], 'L2': [19, 2], 'L3': [14,24,3], 'L4':  [15,25,31,6],
-    #     'L5': [11,21,26,32,7], 'L6': [12,22,27,33,36,10], 'L7': [13,23,28,34,8],
-    #     'L8': [16,29,35,9], 'L9': [17,30,4], 'L10':  [20,5], 'L11': [1]
-    # }
     
     ATOM_TYPES = { 'glycosidic' : {'Phi' : ('O5' , 'C1' ,'O4' , 'C4') , 'Psi' : ('C1' , 'O4' ,'C4' , 'C5')} ,
                    'alcohols'   : {'Chi' : ('O5' , 'C5' ,'C6' , 'O6') , 'Chi_p' : ('C4' , 'C5' ,'C6' , 'O6')} ,
@@ -66,7 +60,7 @@ class CNC_analys:
                             'unit_cell'  : {'dimension' : {'a' : [], 'b' : [], 'c' : []} ,
                                             'angle'  : {'alpha' : [], 'beta' : [], 'gamma' : []}}
                                             }                   ## The main descriptor that stores the atom numbers for different structural properties.
-        # self.descriptor_values = self.descriptor.copy()
+
         self.resid_vec = np.arange(5,17,1)
         self.layer_vec = list(self.layers.keys()) if self.domain == 'exterior' else list(self.layers.keys())[2:-2] ## This choice could be made when only iterior chains are needed.
         self.feature_dict = { 
