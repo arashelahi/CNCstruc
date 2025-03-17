@@ -17,7 +17,7 @@ import pandas as pd
 ## Plotting property against time
 def plot_xvg (ax , x , y , label  , x_label  , y_label  , color , title=None):
     font_size = 10
-    leg_fontsize = 8
+    leg_fontsize = 7
     labelpad = 0
     ax.plot(x,y,label = label , linewidth = 1 , color = color )
     ax.set_xlabel(x_label , fontsize = font_size , labelpad=labelpad +1 )
@@ -25,7 +25,7 @@ def plot_xvg (ax , x , y , label  , x_label  , y_label  , color , title=None):
     ax.set_title(title , fontsize = font_size ,loc='left',fontweight='bold')
     ax.set_ylim([0,100])
     # ax.set_xlim([0.25,1.2])
-    leg = ax.legend(fontsize = leg_fontsize, ncol  = 3 , frameon=True,  fancybox=True , loc = 'upper center' , handletextpad=0.5 , handlelength = 1.0 , columnspacing=1.0 ,labelspacing=0.5 ,bbox_to_anchor=(0.5, 1.2))
+    leg = ax.legend(fontsize = leg_fontsize, ncol  = 1 , frameon=True,  fancybox=True , loc = 'lower left' , handletextpad=0.5 , handlelength = 1.0 , columnspacing=1.0 ,labelspacing=0.5 ,bbox_to_anchor=(0.001, 0.01))
     leg.get_frame().set_edgecolor('k')
     leg.get_frame().set_linewidth(0.4)
 ### for the dihedral angles

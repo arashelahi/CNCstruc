@@ -100,7 +100,6 @@ class CNC_analys:
             DataFrame: Clipped DataFrame.
         """
         
-        # Adding the chain number and residue number to the data
         refined_data = self._dataframe_preprocess()
         refined_data = refined_data[refined_data['residue_number'].isin(self.resid_vec)]
         chain_num_vec = [num for layer in self.layer_vec for num in self.layers[layer]]
@@ -219,15 +218,6 @@ class CNC_analys:
         """
         helper function to extract the atom numbers for the structural properties described by dihedral angles.
 
-        Parameters:
-            data (DataFrame): DataFrame containing angle-specific data.
-            chain_number (int): Chain number.
-            resid (int): Residue number.
-            angle_type (str): Name of angle type, e.g., Phi.
-            feature (str): Name of the structural feature, e.g., glycosidic dihedral angle.
-            resid_offset (int): Residue offset indicating the residue number involved in the dihedral angle.
-        Returns:
-            list: List of atom numbers.
         """
         atom_names = self.ATOM_TYPES[feature][angle_type]
 
@@ -244,7 +234,6 @@ class CNC_analys:
                 resid_offset = 2 if atom_iter > 1 else 0
             if self.ff == 'Charmm':
                 resid_offset = -resid_offset
-            # resid_offset = 1 if angle_type in ['Phi', 'Psi'] and atom_name in ['O4', 'C4', 'C5'] else 0 ## The Phi and Psi angles contain the atoms from two residues, while Chis do not.
             atoms += data[(data['residue_number'] == resid + resid_offset) & 
                           (data['chain_number']   == chain_number) & 
                           (data['atom_name']      == atom_name)]['atom_number'].values.tolist()
@@ -277,10 +266,6 @@ class CNC_analys:
             reverse_copy = odd_glc_numbs.copy()
             odd_glc_numbs = even_glc_numbs.copy()
             even_glc_numbs = reverse_copy
-            # even_glc_numbs = odd_glc_numbs.copy()
-            # odd_glc_numbs = np.unique(self.clipped_data['residue_number'])[1::2]
-            # odd_glc_numbs = np.unique(self.clipped_data['residue_number'])[0::2]
-
         atom_names = self.ATOM_TYPES[feature][hbtype] 
         atoms = []
 
@@ -369,7 +354,6 @@ class CNC_analys:
         Helper function to extract the atom numbers for the unit cell angles.
         """
 
-        
         atom_names = self.ATOM_TYPES[feature][ang_type] 
         atoms = []
         for atom_iter , atom_name in enumerate(atom_names):

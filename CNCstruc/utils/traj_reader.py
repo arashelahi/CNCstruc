@@ -41,9 +41,6 @@ def gro_reader (traj_file,frame=1):
     atom_nums=atom_count(traj_file)
     frame_line=atom_nums+3       
     for line in lines[2:2+atom_nums]:
-        # if i==atom_nums+1:
-        #     box_size=linecache.getline(traj_file, (frame-1)*frame_line+i+2)
-        #     continue
         atom_info = {}
         atom_info['residue_number'] = int(line[:5].strip())
         atom_info['residue_name'] = line[5:10].strip()
@@ -57,13 +54,7 @@ def gro_reader (traj_file,frame=1):
             atom_info['vy'] = float(line[52:60].strip())
             atom_info['vz'] = float(line[60:68].strip())
         atoms.append(atom_info)
-        # line=linecache.getline(traj_file, (frame-1)*frame_line+i+2)
-        # data=[float(line[20:28]),float(line[28:36]),float(line[36:44])]
-        # coord.append(data)
-        # atom_type.append(line[10:15].replace(' ',''))
-    # data=num_conv_pd(np.array(coord),atom_type) ## save as dataframe
     return pd.DataFrame(atoms)
-## this function inputs dataframe of data, and indexfile, and desired index, and gets the coordinates of the particles in that index. "ndx" reader
 def ndx_reader(data_pd,index_file,sel_ind):
     f1=open(index_file)
     atom_num=[]
@@ -115,18 +106,8 @@ def atom_count(traj_file):
                 atom_nums=int(line)
                 break
         return atom_nums
-    # if traj_file[-3:]=='pdb':
-    #     f1=open(traj_file)
-    #     for j,line in enumerate(f1):
-    #         if j==1:
-    #             atom_nums=int(line)
-    #             break
-    #     return atom_nums
-# this function counts number of frames in a gro file
 def frame_count(traj_file):
     atom_nums=atom_count(traj_file)
-    # p = subprocess.Popen("wc -l %s" % traj_file, stdout=subprocess.PIPE,shell=True) 
-    # line_num = int(p.stdout.read().decode().split()[0]) ## for big files , we recommed linux users to uncomment the above
     line_num = sum(1 for line in open(traj_file))  ## for very big files , we recommed linux users to uncomment the above
     frame_lines=atom_nums+3
     return int(line_num/frame_lines)    
@@ -139,8 +120,6 @@ def num_conv_pd(coordinate,atom_type):
     return data
 ## this function writes in the gro format
 def gro_writer_old(traj_file,CG_data,box_size,res_name,frame=1):
-    # res_name="WAT"
-    # atom_name="OW"
     f=open(traj_file,"a")
     f.write('frame number is %d\n' % frame)
     f.write(' %6d\n' % len(CG_data))

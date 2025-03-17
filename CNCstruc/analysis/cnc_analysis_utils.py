@@ -10,20 +10,15 @@ from statistics import mode
 
 """
 This modules uses the gromacs generated xvg files, and outputs residue per time-step behavior for each of the properties.
-
-
 chain naming convention:
 For the interior chains, the labeling starts from ch0 from each layer, and iteratively increases.
 For the exterior chians, the labels are ch0, and ch1, only
-
 """
 
 def feature_analysis (CNCclass ,feature, FF_direcotory , domain='interior'):
-    # feature_dict = {
-    # k: {key: value for key, value in CNCclass.descriptor.items() if key != 'unit_cell'}
-    # for k in self.layer_vec
-    # }
+    """
 
+    """
     filepath = FF_direcotory + 'Results/'
     if feature in ['glycosidic', 'alcohols', 'twist']:
         dihed_analysis (CNCclass , feature , filepath)
@@ -64,7 +59,6 @@ def dihed_get_values(feature , subfeature , filepath,y_index):
     else:
         subfeature_values = glyc_twist_get_values(feature , subfeature , filepath , y_index)
     return subfeature_values
-
 
 def alcohol_get_values(feature , subfeature , filepath , y_index , trans_ang = 150):
     """"
@@ -113,13 +107,11 @@ def hb_analysis (CNCclass , hb_type  , HB_dir, max_hbnum = 11 , domain='interior
     """
     if hb_type == 'O6H_O3':
         max_hbnum=12 
-    # hb_info = {}
     for layer in CNCclass.layer_vec:
         
         chain_number_vec , resid_vec = CNCclass.lay_chain_resid(layer, hb_type) ## The class instance is needed to get the chain numbers
         if chain_number_vec == []:
             continue
-        # hb_info[layer]=[]
 
         for chain_iter , chain_number in enumerate(chain_number_vec):
             filename = HB_dir + '%s_ch%s_%s%s_hbnum.xvg' % (layer , chain_iter, hb_type , file_ext)
@@ -145,15 +137,3 @@ def unit_cell_analysis (CNCclass , feature , filepath):
             _ , subfeature_values = trj.xvg_reader(unit_cell_file,[1,y_index])
             # _get_unit_cell_values(feature , subfeature , unit_cell_file , y_index)
             CNCclass.feature_dict[feature][subfeature][unit_cell_prop] = subfeature_values
-
-# def _get_unit_cell_values(unit_cell_file , y_index):
-#     # if feature == 'dimensions':
-#     #     unit_cell_file = filepath + f'{subfeature}_dist.xvg'
-#     # elif feature == 'angles':
-#     #     for ang_type in ['alpha','beta','gamma']:
-#     #         unit_cell_file = filepath + f'{ang_type}_dist.xvg'
-#     _ , angle_vec = trj.xvg_reader(unit_cell_file,[1,y_index])
-#             # CNCclass.feature_dict['unit_cell']['angle'][ang_type].append(angle_vec)
-#     return 
-
-            
