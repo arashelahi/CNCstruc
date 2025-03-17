@@ -51,7 +51,7 @@ class CNC_analys:
 
         self.layers = layers if layers else self.DEFAULT_LAYERS # The layers are defined based on the spatial location of the chains.
         self.residue_numbers = residue_numbers                  # The number of residues in each CNC chain.
-        self.data = data                                        # The data containing the atom numbers, atom names, residue numbers, and atom positions.
+        self.data_raw = data                                        # The data containing the atom numbers, atom names, residue numbers, and atom positions.
         self.domain = domain                                    # The domain of the CNC structure (interior or exterior)
         self.descriptor = { 'glycosidic' : {'Phi':  [] , 'Psi'   : []} ,
                             'alcohols'   : {'Chi' : [] , 'Chi_p' : []} ,
@@ -74,13 +74,14 @@ class CNC_analys:
                             }
 
         self.ff = FF
-        self.clipped_data = self._clipping()
+        self.data = self._dataframe_preprocess()
+        self.clipped_data = self._clipping(self.data)
     
     def _dataframe_preprocess(self):
         """ This module is used to add the chain number, adjust the residue number,
          and clip the data based on the middle residues and the interior chains. """
 
-        data = self.data.copy()
+        data = self.data_raw.copy()
         # Identify where new residues start ('C1' occurrences)
         residue_starts = data['atom_name'] == 'C1'
 
@@ -92,7 +93,7 @@ class CNC_analys:
         return data
         
 
-    def _clipping(self):
+    def _clipping(self , refined_data):
         """
         This module is used to clip the data based on the middle residues and the interior chains.
 
@@ -100,7 +101,7 @@ class CNC_analys:
             DataFrame: Clipped DataFrame.
         """
         
-        refined_data = self._dataframe_preprocess()
+        # refined_data = self._dataframe_preprocess()
         refined_data = refined_data[refined_data['residue_number'].isin(self.resid_vec)]
         chain_num_vec = [num for layer in self.layer_vec for num in self.layers[layer]]
         self.Clipped_Data=refined_data[refined_data['chain_number'].isin(chain_num_vec)]

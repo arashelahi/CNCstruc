@@ -1,6 +1,6 @@
 from CNCstruc.structure import CNC_class as CNC
-from CNCstruc.utils import traj_reader as trj
-from CNCstruc.analysis import Indexing as indx_gen
+from CNCstruc.utils import traj_reader as trj, Indexing as indx_gen
+# from CNCstruc.analysis import Indexing as indx_gen
 
 import os 
 
