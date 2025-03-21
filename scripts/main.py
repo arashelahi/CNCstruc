@@ -1,5 +1,6 @@
 from CNCstruc.structure import CNC_class as CNC
 from CNCstruc.utils import traj_reader as trj, Indexing as indx_gen, surf_functionalize as srf
+
 # from CNCstruc.analysis import Indexing as indx_gen
 
 import os 
@@ -12,5 +13,5 @@ Data_raw = trj.gro_reader(filename)
 # The information for the gro file and spatial conformation is turned into a class
 CNC_group = CNC.CNC_analys(Data_raw)
 
-func = 'ethyl'
+func = 'butyl'
 srf.material_prep(CNC_group , func)

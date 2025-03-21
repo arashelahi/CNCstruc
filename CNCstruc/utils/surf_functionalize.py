@@ -4,6 +4,7 @@ from CNCstruc.utils import traj_reader as trj
 import pandas as pd
 import os 
 import numpy as np
+from openbabel import pybel
 # from rdkit import Chem
 # from rdkit.Chem import AllChem
 
@@ -96,8 +97,12 @@ def material_prep(CNC_group , func):
     os.makedirs(filepath, exist_ok=True)
     for side in side_vec:
         cellulose_func = functionalization (cellulose_data , func , side)
-        filename = filepath + f'cellulose_{func}_{side}.gro'
-        trj.gro_writer(filename, cellulose_func)
+        filename = filepath + f'cellulose_{func}_{side}'
+        
+        trj.gro_writer(f'{filename}.gro', cellulose_func)
+        mol = next(pybel.readfile("gro",f'{filename}.gro'))
+        mol.write("xyz", f"{filename}.xyz", overwrite=True)
+        
     
     ### Making the CNC.
     left_molecules = [first_elem[0] for first_elem in list(CNC_group.layers.values())[:-1]]
