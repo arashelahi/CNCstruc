@@ -1,5 +1,5 @@
 from CNCstruc.structure import CNC_class as CNC
-from CNCstruc.utils import traj_reader as trj, Indexing as indx_gen
+from CNCstruc.utils import traj_reader as trj, surf_functionalize as srf
 # from CNCstruc.analysis import Indexing as indx_gen
 import pandas as pd
 import os 
@@ -8,7 +8,7 @@ import numpy as np
 # from rdkit.Chem import AllChem
 
 
-def functionalization(parent_molecule , reference_atom , atoms_to_delete , resid_range , func_group_init):
+def molecule_conversion(parent_molecule , reference_atom , atoms_to_delete , resid_range , func_group_init):
     '''
     This function converts the reactive groups to the modifying functional group:
     input: 
@@ -43,18 +43,20 @@ def functionalization(parent_molecule , reference_atom , atoms_to_delete , resid
         parent_molecule = parent_molecule.sort_values(by = 'atom_number' , ascending = True).reset_index(drop = True)
     return parent_molecule
 
-def alkylation (parent_molecule , func):
-    side_vec = ['left' , 'right']
-    for side in side_vec:
-        CNC_COOH_data = carboxylation (parent_molecule , side)
-        # The functional group data and the residues to replace
-        func_group_init , resid_range = _data_preparation(CNC_COOH_data , func , side)
-        # The atom to be replaced and the atoms to be deleted
+def functionalization (parent_molecule , func , side):
+    # The functional group data and the residues to replace
+    func_group_init , resid_range = _data_preparation(parent_molecule , func , side)
+    # The atom to be replaced and the atoms to be deleted
+    reference_atom = 'C6'
+    if func == 'COOH':
         reference_atom = 'C6'
+        atoms_to_delete = ('H61', 'H62', 'O6' , 'HO6')
+    else:
+        # if the group is alkyl, it has to be applied on the carboxylated cellulose
+        parent_molecule = functionalization (parent_molecule , 'COOH' , side)
         atoms_to_delete = ('O','H')
-        # The carboxylated cellulose
-        alkylated_CNC = functionalization(CNC_COOH_data , reference_atom , atoms_to_delete , resid_range , func_group_init)
-        trj.gro_writer(f'CNC_COOH_{func}_{side}.gro' , alkylated_CNC)
+    functionalized_CNC = molecule_conversion(parent_molecule , reference_atom , atoms_to_delete , resid_range , func_group_init)
+    return functionalized_CNC
 
 def _data_preparation(parent_molecule , func , side):
     functional_file = f'./data/input/Groups/{func}_{side}.pdb'
@@ -64,32 +66,51 @@ def _data_preparation(parent_molecule , func , side):
     else:
         resid_range = np.arange(parent_molecule['residue_number'].min() + 1, parent_molecule['residue_number'].max()+1 , 2)
     return functional_data , resid_range
-def carboxylation (parent_molecule , side):
-    func = 'COOH'
-    # side_vec = ['left' , 'right']
-    # for side in side_vec:
-        # The functional group data and the residues to replace
-    func_group_init , resid_range = _data_preparation(parent_molecule , func , side)
-    # The atom to be replaced and the atoms to be deleted
-    reference_atom = 'C6'
-    atoms_to_delete = ('H61', 'H62', 'O6' , 'HO6')
-    # The carboxylated cellulose
-    carboxylated_CNC = functionalization(parent_molecule , reference_atom , atoms_to_delete , resid_range , func_group_init)
-    trj.gro_writer(f'CNC_COOH_{side}.gro' , carboxylated_CNC)
-    return carboxylated_CNC
+def CNC_creation (parent_molecule , func , left_molecules , right_molecules):
+    # left_molecules = [first_elem[0] for first_elem in list(CNC_group.layers.values())[:-1]]
+    # right_molecules = [first_elem[-1] for first_elem in list(CNC_group.layers.values())[0:]]
+    new_CNC = pd.DataFrame(columns=parent_molecule.columns)
+    for chain_num in np.unique(parent_molecule['chain_number']):
+        current_data = parent_molecule[parent_molecule['chain_number'] == chain_num]
+        if chain_num in left_molecules:
+            side = 'left'
+        elif chain_num in  right_molecules:
+            side = 'right'
+        else:
+            new_CNC = pd.concat([new_CNC ,current_data ])
+            continue
+        current_data = functionalization(current_data , func, side)
+        new_CNC = pd.concat([new_CNC ,current_data ])
+    new_CNC['atom_number'] = new_CNC.reset_index(drop = True).index + 1
+    return new_CNC.reset_index(drop = True)
+def material_prep(CNC_group , func):
+    # This function gets the CNC object and the functional group and creates the gro files for the surface-modified ones.
+    # CNC_group = Data = CNC_group.data
+    filepath = f'./data/input/{func}/'
+    Data = CNC_group.data
+    cellulose_data = Data[Data['chain_number'] == 1]
+    side_vec = ['left' , 'right']
+    for side in side_vec:
+        cellulose_func = functionalization (cellulose_data , func , side)
+        trj.gro_writer(f'{filepath}/cellulose_{func}_{side}.gro' , cellulose_func)
+    
+    ### Making the CNC.
+    left_molecules = [first_elem[0] for first_elem in list(CNC_group.layers.values())[:-1]]
+    right_molecules = [first_elem[-1] for first_elem in list(CNC_group.layers.values())[0:]]
+    CNC_COOH_Data =  CNC_creation (Data , func ,left_molecules , right_molecules)
+    # print(CNC_COOH_Data)
+    trj.gro_writer(f'{filepath}/CNC_{func}.gro' , CNC_COOH_Data)
+    # CNC_COOH_data  = carboxylation (Data , 'left')
 
 
 ## initialization of the CNC object
+# The main input of this module is the coordinate file of a single pristine CNC.
 CNC_form = 'Pristine'
 filepath= ''
 filename = f'./data/input/{CNC_form}/solute.gro'
 Data_raw = trj.gro_reader(filename)
+# The information for the gro file and spatial conformation is turned into a class
 CNC_group = CNC.CNC_analys(Data_raw)
-Data = CNC_group.data  # the chain number is added to the data  
-one_chain = Data[Data['chain_number'] == 1]
-# CNC_COOH_data  = carboxylation (one_chain , 'left')
-## alkylation of the cellulose
-alkyl_group = 'ethyl'
-CNC_COOH_alkyl = alkylation (one_chain , alkyl_group)
-# trj.gro_writer('CNC_COOH.gro' , CNC_COOH_data)
 
+func = 'butyl'
+material_prep(CNC_group , func)

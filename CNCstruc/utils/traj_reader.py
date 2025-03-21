@@ -163,7 +163,7 @@ def gro_writer(traj_file,data,box_dimensions=[10,10,10]):
     f.write("{:5d}\n".format(len(data)))
     for i in data.index.tolist():
         atom_line = "{:5d}{:<5}{:>5}{:5d}{:8.3f}{:8.3f}{:8.3f}".format(
-        data.loc[i,'chain_number'] ,
+        data.loc[i,'residue_number'] ,
         data.loc[i,'residue_name'],
         data.loc[i,'atom_name'],
         data.loc[i,'atom_number'],
