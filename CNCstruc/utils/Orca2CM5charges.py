@@ -102,8 +102,6 @@ def xyz_prep(df):
     opdb.write('REMARK LIGPARGEN GENERATED XYZ FILE\n')
     num = 0
     for (i, r) in df.iterrows(): 
-        print('%-6s    %8.3f%8.3f%8.3f\n' %
-                   (r.ATOM, r.X, r.Y, r.Z))
         opdb.write('%-6s    %8.3f%8.3f%8.3f\n' %
                    (r.ATOM, r.X, r.Y, r.Z))
     opdb.close()
