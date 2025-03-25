@@ -3,6 +3,6 @@ __pycache__/
 .DS_Store
 env/
 .vscode/
-
+CNCstruc.egg-info
 data/{Indices,output}
 scripts/Local
