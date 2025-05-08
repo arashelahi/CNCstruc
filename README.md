@@ -1,24 +1,6 @@
 # CNCstruc
 This package enables the calculation of the different structural properties of cellulose nanocrystals, including primary alcohol conformation, unit cell parameters, twist angles, etc.
 
-## Reference
-This software utilizes a few archived or deprticated packages,particularly mktop and Orca2CM5charges, which needed significant modification. If you are using CNCstruc software, please ensure you cite the relevant papers for the aformentioned packages.
-  1. LigParGen web server: an automatic OPLS-AA parameter generator for organic ligands  
-     Leela S. Dodda  Israel Cabeza de Vaca  Julian Tirado-Rives William L. Jorgensen 
-     Nucleic Acids Research, Volume 45, Issue W1, 3 July 2017, Pages W331–W336
-
-  2. Charge Model 5: An Extension of Hirshfeld Population Analysis for the Accurate Description of Molecular Interactions in Gaseous and Condensed Phases
-     Marenich, A. V.; Jerome, S. V.; Cramer, C. J.; Truhlar, D. G. J. Chem. Theory Comput. 2012, 8, 527– 541
-
-  3. Evaluation of CM5 Charges for Condensed-Phase Modeling
-     Jonah Z. Vilseck, Julian Tirado-Rives, and William L. Jorgensen J. Chem. Theory Comput., 2014, 10 (7), pp 2802–2812
-
-  4. Evaluation of CM5 Charges for Nonaqueous Condensed-Phase Modeling
-     Leela S. Dodda, Jonah Z. Vilseck, Kara J. Cutrona, and William L. Jorgensen J. Chem. Theory Comput., 2015, 11 (9), pp 4273–428
-     
-  5. MKTOP: a program for automatic construction of molecular topologies
-     Ribeiro, A.A.S.T.; Horta, B.A.C.; de Alencastro, R.B.  J. Braz. Chem. Soc., 2008, 19 (7), pp 1433-1435, 
-
 ## Applications
 The current version of CNCstruc software is only compatible with GROMACS inputs and outputs, and it has two main applications:
 1. It reads the coordinate file (pdb or gro), and extracts the atoms involved for quantification of different properties, e.g., hydrogen bonds, alcohol conformations, etc., and creates GROMACS-compatible index files.  
