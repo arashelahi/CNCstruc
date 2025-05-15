@@ -1,5 +1,8 @@
 # CNCstruc
-This package enables the calculation of the different structural properties of cellulose nanocrystals, including primary alcohol conformation, unit cell parameters, twist angles, etc.
+This package enables the calculation of the different structural properties of cellulose nanocrystals, including primary alcohol conformation, unit cell parameters, twist angles, etc. Please cite the following publication if you are using this software:
+
+Carbohydrate Polymers, Volume 360, 15 July 2025, 123572
+
 
 ## Applications
 The current version of CNCstruc software is only compatible with GROMACS inputs and outputs, and it has two main applications:
