@@ -1,7 +1,9 @@
 # CNCstruc
 This package enables the calculation of the different structural properties of cellulose nanocrystals, including primary alcohol conformation, unit cell parameters, twist angles, etc. Please cite the following publication if you are using this software:
 
-Carbohydrate Polymers, Volume 360, 15 July 2025, 123572
+Elahi, A.; Yan, X.; Chaudhuri, S. Enhancing the OPLS-AA force field for cellulose Iβ: structural stability and surface functionalization capability with the CM5 charge model. Carbohydr. Polym. 2025, 360, 123572 
+
+This paper also massively uses OPLSCM5 Click [here](quora.com/profile/Ashish-Kulkarni-100).  software developed through this research to create GROMACS-compatible topology files. Here is the link to OPLSCM5 software. 
 
 
 ## Applications
